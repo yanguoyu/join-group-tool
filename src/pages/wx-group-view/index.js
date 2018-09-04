@@ -20,10 +20,10 @@ import './index.less'
     dispatch(asyncAdd())
   }
 }))
-class Index extends Component {
+class WxGroupView extends Component {
 
     config = {
-    navigationBarTitleText: '首页'
+    navigationBarTitleText: '加群助手'
   }
 
   componentWillReceiveProps (nextProps) {
@@ -49,4 +49,4 @@ class Index extends Component {
   }
 }
 
-export default Index
+export default WxGroupView
