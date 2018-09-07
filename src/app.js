@@ -5,10 +5,19 @@ import { Provider } from '@tarojs/redux'
 import WxGroupView from './pages/wx-group-view'
 
 import configStore from './store'
+import stateUpdateHelp from './shared/state-update-help';
 
 import './app.less'
 
 const store = configStore()
+stateUpdateHelp();
+
+// 由于小程序的限制 Flex 组件只能通过样式来完成
+if (process.env.TARO_ENV === "weapp") {
+  require("taro-ui/dist/weapp/css/index.css")
+} else if (process.env.TARO_ENV === "h5") {
+  require("taro-ui/dist/h5/css/index.css")
+}
 
 class App extends Component {
 
