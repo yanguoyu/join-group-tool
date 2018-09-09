@@ -130,7 +130,6 @@ class UploadQrcode extends Component {
             error={this.state.groupName.error}
             onChange={this.changeName}
             maxlength={10}
-            clear
           />
           <AtInput
             name='groupDescribe'
@@ -141,7 +140,6 @@ class UploadQrcode extends Component {
             value={this.state.groupDescribe.value}
             error={this.state.groupDescribe.error}
             onChange={this.changeDescribe}
-            clear
           />
         </AtForm>
         <View className='choose-qrcode'>
