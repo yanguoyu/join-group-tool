@@ -1,49 +1,44 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Button } from '@tarojs/components'
+import { View } from '@tarojs/components'
+import { AtActivityIndicator } from 'taro-ui'
 import { connect } from '@tarojs/redux'
-
-import { add, minus, asyncAdd } from '../../actions/counter'
+import AV from '../../shared/av-weapp-min'
+import QrcodeList from '../components/qrcode-list';
 
 import './index.less'
 
 
 @connect(({ counter }) => ({
   counter
-}), (dispatch) => ({
-  add () {
-    dispatch(add())
-  },
-  dec () {
-    dispatch(minus())
-  },
-  asyncAdd () {
-    dispatch(asyncAdd())
-  }
 }))
 class WxGroupView extends Component {
 
-    config = {
+  config = {
     navigationBarTitleText: '加群助手'
   }
 
-  componentWillReceiveProps (nextProps) {
-    console.log(this.props, nextProps)
+  componentWillMount() {
+    const qrcodeQuery = new AV.Query('qrcode_info');
+    qrcodeQuery
+      .find()
+      .then(result => {
+        this.setState({
+          qrcodeList: result.map(value => ({
+          name: value.get('name'),
+          desc: value.get('desc'),
+          image: value.get('image'),
+        }))})
+      });
   }
-
-  componentWillUnmount () { }
-
-  componentDidShow () { }
-
-  componentDidHide () { }
 
   render () {
     return (
       <View className='index'>
-        <Button className='add_btn' onClick={this.props.add}>+</Button>
-        <Button className='dec_btn' onClick={this.props.dec}>-</Button>
-        <Button className='dec_btn' onClick={this.props.asyncAdd}>async</Button>
-        <View>{this.props.counter.num}</View>
-        <View>Hello, World</View>
+        {
+          this.state.qrcodeList ?
+          <QrcodeList  qrcodeList={this.state.qrcodeList} /> : 
+          <AtActivityIndicator mode='center' content='加载中...' />
+        }
       </View>
     )
   }

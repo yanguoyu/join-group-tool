@@ -1,18 +1,18 @@
 import {
   GET_USER_INFO,
+  UPLOAD_QRCODE,
 } from '../constants/personal-center'
 
-export const getUserInfo = () => {
+export const getUserInfo = (userInfo) => {
   return {
-    type: GET_USER_INFO
+    type: GET_USER_INFO,
+    payload: userInfo,
   }
 }
 
-// 异步的action
-export function asyncAdd () {
-  return dispatch => {
-    setTimeout(() => {
-      dispatch(getUserInfo())
-    }, 2000)
+export const uploadQrcode = (url) => {
+  return {
+    type: UPLOAD_QRCODE,
+    payload: url
   }
 }
