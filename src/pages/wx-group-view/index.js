@@ -2,14 +2,21 @@ import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
 import { AtActivityIndicator, AtInput } from 'taro-ui'
 import { connect } from '@tarojs/redux'
-import AV from '../../shared/av-weapp-min'
 import QrcodeList from '../components/qrcode-list';
+import { getAllQrcode, getQrcodeByCondition } from '../../actions/wx-group-view';
 
 import './index.less'
 
 
-@connect(({ counter }) => ({
-  counter
+@connect(({ wxGroupView }) => ({
+  qrcodeList: wxGroupView.qrcodeList
+}), (dispatch) => ({
+  getAllQrcode() {
+    dispatch(getAllQrcode())
+  },
+  getQrcodeByCondition(conditions) {
+    dispatch(getQrcodeByCondition(conditions))
+  }
 }))
 class WxGroupView extends Component {
 
@@ -18,34 +25,15 @@ class WxGroupView extends Component {
   }
 
   componentWillMount() {
-    const qrcodeQuery = new AV.Query('qrcode_info');
-    qrcodeQuery
-      .find()
-      .then(result => {
-        this.setState({
-          qrcodeList: result.map(value => ({
-          name: value.get('name'),
-          desc: value.get('desc'),
-          image: value.get('image'),
-        }))})
-      });
+    this.props.getAllQrcode();
   }
 
   search = () => {
-    const qrcodeQuery = new AV.Query('qrcode_info');
     if(this.state.key) {
-      qrcodeQuery.contains('name', this.state.key);
+      this.props.getQrcodeByCondition({ name: this.state.key});
+    }else {
+      this.props.getAllQrcode();
     }
-    qrcodeQuery
-      .find()
-      .then(result => {
-        this.setState({
-          qrcodeList: result.map(res => ({
-          name: res.get('name'),
-          desc: res.get('desc'),
-          image: res.get('image'),
-        }))})
-      });
   }
 
   changeKey = (value) => {

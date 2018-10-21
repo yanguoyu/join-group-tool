@@ -1,19 +1,27 @@
 import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
-import { View, Image } from '@tarojs/components'
-import { AtInput, AtForm, AtNoticebar, AtToast } from 'taro-ui'
+import { View, Image, Picker } from '@tarojs/components'
+import { AtInput, AtForm, AtNoticebar, AtToast, AtList, AtListItem } from 'taro-ui'
 import AV from '../../shared/av-weapp-min'
-import { uploadQrcode } from '../../actions/personal-center'
+import { uploadQrcode, getQrcodeType, changeFormValue } from '../../actions/personal-center'
 import './upload-qrcode.less'
 
 const isError = (value) => (value === '' || value === null || value === undefined)
 
 @connect(({ personalCenter }) => ({
   userInfo: personalCenter.userInfo,
-  tempUrl: personalCenter.tempUrl
+  tempUrl: personalCenter.tempUrl,
+  qrcodeTypes: personalCenter.qrcodeTypes,
+  qrcodeType: personalCenter.formValues.qrcodeType
 }), (dispatch) => ({
   uploadQrcode(url) {
     dispatch(uploadQrcode(url))
+  },
+  getQrcodeType() {
+    dispatch(getQrcodeType())
+  },
+  changeFormValue(key, value) {
+    dispatch(changeFormValue({ [key]: value }))
   }
 }))
 class UploadQrcode extends Component {
@@ -27,6 +35,7 @@ class UploadQrcode extends Component {
     this.state = {
       groupName: { error: false },
       groupDescribe: { error: false },
+      groupOwner: { error: false }
     };
   }
 
@@ -35,10 +44,13 @@ class UploadQrcode extends Component {
     this.setState({
       groupName: { value: '', error: false },
       groupDescribe: { value: '', error: false },
+      groupOwner: { value: '', error: false }
     })
   }
 
-  componentWillUnmount () { }
+  componentWillMount () { 
+    this.props.getQrcodeType();
+  }
 
   componentDidShow () { }
 
@@ -64,27 +76,34 @@ class UploadQrcode extends Component {
 
   changeName = (value) => this.setState({ groupName: { value , error: isError(value) } });
   changeDescribe = (value) => this.setState({ groupDescribe: { value , error: isError(value) } });
+  changeOwner = (value) => this.setState({ groupOwner: { value , error: isError(value) } });
+
+  checkValue(key) {
+    if(isError(this.state[key].value)) {
+      this.setState({ [key]: { value: this.state[key].value, error: true } });
+      return false;
+    }
+    return true;
+  }
 
   checkForm() {
-    const isNameError = isError(this.state.groupName.value);
-    const isDescError = isError(this.state.groupDescribe.value);
-    if(isNameError) {
-      this.setState({ groupName: { value: this.state.groupName.value, error: true } });
-    }
-    if(isDescError){
-      this.setState({ groupDescribe: { value: this.state.groupDescribe.value, error: true } });
-    }
-    return !(isNameError || isDescError);
+    const groupName = this.checkValue('groupName');
+    const groupDescribe = this.checkValue('groupDescribe');
+    const groupOwner = this.checkValue('groupOwner');
+    return groupName && groupDescribe && groupOwner;
   }
 
   onSave = () => {
     if(this.checkForm()){
       if(this.props.tempUrl) {
         const GroupInfo = AV.Object.extend('qrcode_info');
+        const groupType = AV.Object.createWithoutData('qrcode_type', this.props.qrcodeType.id);
         const groundInfo = new GroupInfo();
         groundInfo.set('name', this.state.groupName.value);
         groundInfo.set('desc', this.state.groupDescribe.value);
+        groundInfo.set('owner', this.state.groupOwner.value);
         groundInfo.set('image', this.props.tempUrl);
+        groundInfo.set('type', groupType);
         if(this.props.userInfo) {
           const userPointer = AV.Object.createWithoutData('_User', this.props.userInfo.objectId);
           groundInfo.set('user', userPointer);
@@ -107,9 +126,13 @@ class UploadQrcode extends Component {
       }
     }
   }
+
+  changeQrType = ({ detail }) => {
+    this.props.changeFormValue('qrcodeType', this.props.qrcodeTypes[detail.value]);
+  }
   
   render () {
-    const { userInfo, tempUrl } = this.props;
+    const { userInfo, tempUrl, qrcodeTypes, qrcodeType } = this.props;
     return (
       <View className='upload-qrcode'>
         {
@@ -126,10 +149,31 @@ class UploadQrcode extends Component {
             title='群名称'
             type='text'
             placeholder='请输入微信群名称'
+            border={false}
             value={this.state.groupName.value}
             error={this.state.groupName.error}
             onChange={this.changeName}
-            maxlength={10}
+            maxlength={20}
+          />
+          <AtList class='qrcode-type'>
+            <Picker
+              mode='selector'
+              rangeKey='name'
+              range={qrcodeTypes}
+              onChange={this.changeQrType}
+            >
+              <AtListItem title='群类型' extraText={qrcodeType.name} />
+            </Picker>
+          </AtList>
+          <AtInput
+            name='groupOwner'
+            title='群主号'
+            type='text'
+            placeholder='请输入群主微信号'
+            value={this.state.groupOwner.value}
+            error={this.state.groupOwner.error}
+            onChange={this.changeOwner}
+            maxlength={20}
           />
           <AtInput
             name='groupDescribe'

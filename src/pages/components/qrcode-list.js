@@ -5,6 +5,13 @@ import QrcodeView from './qrcode-view';
 
 import './qrcode-list.less'
 
+// 由于小程序的限制 Flex 组件只能通过样式来完成
+if (process.env.TARO_ENV === "weapp") {
+  require("taro-ui/dist/weapp/css/index.css")
+} else if (process.env.TARO_ENV === "h5") {
+  require("taro-ui/dist/h5/css/index.css")
+}
+
 class QrcodeList extends Component {
 
   constructor() {
@@ -37,15 +44,17 @@ class QrcodeList extends Component {
     const curDisplayList = qrcodeList.slice((current-1)*pageSize, current*pageSize);
     return (
       <View className='qrcode-list'>
-        {
-          curDisplayList.map((qrcodeInfo, index) => {
-            return (
-            <View key={index}>
-              <QrcodeView qrcodeInfo={qrcodeInfo} />
-            </View>
-            )
-          })
-        }
+        <View className='at-row at-row__justify--left at-row--wrap'>
+          {
+            curDisplayList.map((qrcodeInfo, index) => {
+              return (
+              <View key={index} className='at-col at-col-5 qrcode-list-item'>
+                <QrcodeView qrcodeInfo={qrcodeInfo} />
+              </View>
+              )
+            })
+          }
+        </View>
         {
           total && total > pageSize && 
           <View className='pagination'>
