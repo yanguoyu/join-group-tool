@@ -7,8 +7,11 @@ import apiMiddware from './api-middware';
 const middlewares = [
   thunkMiddleware,
   apiMiddware,
-  createLogger()
 ]
+
+if(process.env.NODE_ENV === 'development') {
+  middlewares.push(createLogger());
+}
 
 export default function configStore () {
   const store = createStore(rootReducer, applyMiddleware(...middlewares))

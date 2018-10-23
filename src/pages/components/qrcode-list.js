@@ -23,11 +23,12 @@ class QrcodeList extends Component {
 
   static defaultProps = {
     qrcodeList: [],
-    pageSize: 3
+    pageSize: 10
   }
 
   changePage = ({ current }) => {
     this.setState({ current });
+    this.props.onPageChange(current);
     Taro.pageScrollTo({
       scrollTop: 0,
       duration: 300
@@ -35,18 +36,16 @@ class QrcodeList extends Component {
   }
 
   render () {
-    const { qrcodeList, pageSize } = this.props;
-    const total = qrcodeList && qrcodeList.length;
+    const { qrcodeList, pageSize, total } = this.props;
     if(!total) {
       return <View>暂无数据</View>;
     }
     const { current } = this.state;
-    const curDisplayList = qrcodeList.slice((current-1)*pageSize, current*pageSize);
     return (
       <View className='qrcode-list'>
         <View className='at-row at-row__justify--left at-row--wrap'>
           {
-            curDisplayList.map((qrcodeInfo, index) => {
+            qrcodeList.map((qrcodeInfo, index) => {
               return (
               <View key={index} className='at-col at-col-5 qrcode-list-item'>
                 <QrcodeView qrcodeInfo={qrcodeInfo} />

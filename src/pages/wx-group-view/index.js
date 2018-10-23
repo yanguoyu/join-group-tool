@@ -3,19 +3,28 @@ import { View } from '@tarojs/components'
 import { AtActivityIndicator, AtInput } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import QrcodeList from '../components/qrcode-list';
+import DropDown from '../components/drop-down';
 import { getAllQrcode, getQrcodeByCondition } from '../../actions/wx-group-view';
+import { getQrcodeType } from '../../actions/personal-center';
 
 import './index.less'
 
-
-@connect(({ wxGroupView }) => ({
-  qrcodeList: wxGroupView.qrcodeList
+@connect(({ wxGroupView, personalCenter }) => ({
+  qrcodeList: wxGroupView.qrcodeList,
+  qrcodeTypes: personalCenter.qrcodeTypes.map(item => ({
+    label: item.name,
+    value: item.id
+  })),
+  qrcodeCount: wxGroupView.qrcodeCount,
 }), (dispatch) => ({
-  getAllQrcode() {
-    dispatch(getAllQrcode())
+  getAllQrcode(page) {
+    dispatch(getAllQrcode(page))
   },
   getQrcodeByCondition(conditions) {
     dispatch(getQrcodeByCondition(conditions))
+  },
+  getQrcodeType() {
+    dispatch(getQrcodeType())
   }
 }))
 class WxGroupView extends Component {
@@ -24,23 +33,54 @@ class WxGroupView extends Component {
     navigationBarTitleText: '加群助手'
   }
 
+  order = [{
+    label: '创建时间',
+    value: 'createdAt',
+  }];
+  
+  keyNames = ['qrcodeType', 'order'];
+
   componentWillMount() {
     this.props.getAllQrcode();
+    this.props.getQrcodeType();
   }
 
-  search = () => {
-    if(this.state.key) {
-      this.props.getQrcodeByCondition({ name: this.state.key});
+  search = (page) => {
+    if(this.state.key || this.state.qrcodeType || this.state.order) {
+      this.props.getQrcodeByCondition({
+        name: this.state.key,
+        type: this.state.qrcodeType,
+        order: this.state.order,
+        page,
+      });
     }else {
-      this.props.getAllQrcode();
+      this.props.getAllQrcode(page);
     }
   }
 
-  changeKey = (value) => {
-    this.setState({ key: value });
+  changeKey = (key) => {
+    this.setState({ key });
+  }
+
+  changeValue = (value, index) => {
+    this.setState({ [this.keyNames[index]]: value });
+  }
+
+  onPageChange = (currentPage) => {
+    this.search(currentPage-1);
   }
 
   render () {
+    const { key } = this.state;
+    const options = [
+      this.props.qrcodeTypes,
+      this.order,
+    ];
+    const values = [
+      this.state[this.keyNames[0]],
+      this.state[this.keyNames[1]],
+    ];
+    const { qrcodeCount } = this.props;
     return (
       <View className='index'>
         <View className='search'>
@@ -50,15 +90,24 @@ class WxGroupView extends Component {
             placeholder='请输入关键字'
             maxlength={10}
             confirmType='搜索'
-            value={this.state.key}
+            value={key}
             onChange={this.changeKey}
           >
             <View onClick={this.search}>搜索</View>
           </AtInput>
+          <DropDown
+            options={options}
+            values={values}
+            onChange={this.changeValue}
+          />
         </View>
         {
           this.state.qrcodeList ?
-          <QrcodeList  qrcodeList={this.state.qrcodeList} /> : 
+          <QrcodeList
+            qrcodeList={this.state.qrcodeList}
+            total={qrcodeCount}
+            onPageChange={this.onPageChange}
+          /> : 
           <AtActivityIndicator mode='center' content='加载中...' />
         }
       </View>

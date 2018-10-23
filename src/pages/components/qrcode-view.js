@@ -20,7 +20,7 @@ class QrcodeView extends Component {
     return (
       <View className='qrcode-view at-row at-row__justify--center at-row--wrap'>
         <Image src={image} className='at-col at-col-12' />
-        <View className='at-col at-col-12 qrcode-desc' >群描述：{desc}</View>
+        <View className='at-col at-col-12 qrcode-desc qrcode-view-over-flow' >群描述：{desc}</View>
         <View className='at-col at-col-12 qrcode-desc' >群主id：{owner}</View>
         <View className='at-col at-col-12 qrcode-name' >{name}</View>
       </View>
