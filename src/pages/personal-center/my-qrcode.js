@@ -9,6 +9,10 @@ import AV from '../../shared/av-weapp-min'
 }))
 class MyQrcode extends Component {
 
+  config = {
+    navigationBarTitleText: '我上传的',
+  }
+
   constructor() {
     super();
     this.state = {
