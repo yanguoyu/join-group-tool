@@ -217,7 +217,7 @@ class UploadQrcode extends Component {
             { tempUrl ? '重新上传二维码' : '上传二维码' }
           </View>
           <View className='at-article__p'>
-            若群限制加入，最好上传群主或者群管理微信二维码
+            若群限制加入，请上传群主或者群管理微信二维码
           </View>
           {
             tempUrl &&

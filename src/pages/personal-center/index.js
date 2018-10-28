@@ -60,7 +60,6 @@ class PersonalCenter extends Component {
 
   render () {
     const { userInfo } = this.props;
-    console.log(userInfo);
     return (
       <View>
         <View className='user-info'>
