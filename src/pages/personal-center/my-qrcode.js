@@ -32,10 +32,11 @@ class MyQrcode extends Component {
         this.setState({
           current: 1,
           qrcodeList: result.map(value => ({
-          name: value.get('name'),
-          desc: value.get('desc'),
-          image: value.get('image'),
-          owner: value.get('owner')
+            name: value.get('name'),
+            desc: value.get('desc'),
+            image: value.get('image'),
+            owner: value.get('owner'),
+            id: value.id
         }))})
       });
   }
@@ -53,6 +54,7 @@ class MyQrcode extends Component {
     return (
       <View className='qrcode-list'>
         <QrcodeList
+          isOwner
           qrcodeList={curDisplayList}
           total={total}
           onPageChange={this.onPageChange}

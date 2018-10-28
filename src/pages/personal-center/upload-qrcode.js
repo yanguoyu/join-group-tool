@@ -1,7 +1,7 @@
 import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
-import { View, Image, Picker } from '@tarojs/components'
-import { AtInput, AtForm, AtNoticebar, AtToast, AtList, AtListItem } from 'taro-ui'
+import { View, Picker } from '@tarojs/components'
+import { AtInput, AtForm, AtNoticebar, AtList, AtListItem } from 'taro-ui'
 import AV from '../../shared/av-weapp-min'
 import { uploadQrcode, getQrcodeType, changeFormValue } from '../../actions/personal-center'
 import './upload-qrcode.less'
@@ -50,6 +50,17 @@ class UploadQrcode extends Component {
 
   componentWillMount () { 
     this.props.getQrcodeType();
+    if(this.$router.params.id) {
+      var query = new AV.Query('qrcode_info');
+      query.get(this.$router.params.id).then((todo) => {
+        this.setState({
+          groupName: { value: todo.get('name'), error: false },
+          groupDescribe: { value: todo.get('desc'), error: false },
+          groupOwner: { value: todo.get('owner'), error: false },
+          tempUrl: todo.get('image')
+        })
+      });
+    }
   }
 
   componentDidShow () { }
@@ -68,7 +79,9 @@ class UploadQrcode extends Component {
         },
       }).save().then(
         file => {
-          this.props.uploadQrcode(file.url())                                                                                                                                                                                                                                   
+          this.setState({
+            tempUrl: file.url()
+          })
         }
       );
     })
@@ -95,14 +108,19 @@ class UploadQrcode extends Component {
 
   onSave = () => {
     if(this.checkForm()){
-      if(this.props.tempUrl) {
+      if(this.state.tempUrl) {
         const GroupInfo = AV.Object.extend('qrcode_info');
         const groupType = AV.Object.createWithoutData('qrcode_type', this.props.qrcodeType.id);
-        const groundInfo = new GroupInfo();
+        let groundInfo = null;
+        if(this.$router.params.id) {
+          groundInfo = AV.Object.createWithoutData('qrcode_info', this.$router.params.id);
+        } else {
+          groundInfo = new GroupInfo();
+        }
         groundInfo.set('name', this.state.groupName.value);
         groundInfo.set('desc', this.state.groupDescribe.value);
         groundInfo.set('owner', this.state.groupOwner.value);
-        groundInfo.set('image', this.props.tempUrl);
+        groundInfo.set('image', this.state.tempUrl);
         groundInfo.set('type', groupType);
         if(this.props.userInfo) {
           const userPointer = AV.Object.createWithoutData('_User', this.props.userInfo.objectId);
@@ -112,17 +130,20 @@ class UploadQrcode extends Component {
           .save()
           .then(
             () => {
-              this.reset();
-              Taro.navigateBack();
               Taro.showToast({
                 title: '上传成功',
                 icon: 'success',
-                duration: 2000
-              })
+                duration: 1000
+              });
+              setTimeout(() => Taro.navigateBack(), 1000);
             }
           )
       } else {
-        this.setState({ isOpened: true });
+        Taro.showToast({
+          title: '请上传群二维码',
+          image: '/assert/_warning.png',
+          duration: 2000
+        })
       }
     }
   }
@@ -130,9 +151,14 @@ class UploadQrcode extends Component {
   changeQrType = ({ detail }) => {
     this.props.changeFormValue('qrcodeType', this.props.qrcodeTypes[detail.value]);
   }
+
+  viewImage = () => {
+    Taro.previewImage({ urls: [this.state.tempUrl]});
+  }
   
   render () {
-    const { userInfo, tempUrl, qrcodeTypes, qrcodeType } = this.props;
+    const { userInfo, qrcodeTypes, qrcodeType } = this.props;
+    const { tempUrl } = this.state;
     return (
       <View className='upload-qrcode'>
         {
@@ -190,19 +216,19 @@ class UploadQrcode extends Component {
           <View className='upload' onClick={this.uploadQrcode}>
             { tempUrl ? '重新上传二维码' : '上传二维码' }
           </View>
+          <View className='at-article__p'>
+            若群限制加入，最好上传群主或者群管理微信二维码
+          </View>
           {
             tempUrl &&
-            <Image src={tempUrl} />
+            <View className='upload upload-qrcode-image-view' onClick={this.viewImage}>
+              预览二维码
+            </View>
           }
         </View>
         <View className='save-or-cancel' onClick={this.onSave}>
           保存
         </View>
-        <AtToast
-          isOpened={this.state.isOpened}
-          duration={2000}
-          text='请上传群二维码'
-        />
       </View>
     )
   }

@@ -33,6 +33,7 @@ class App extends Component {
       'pages/personal-center/index',
       'pages/personal-center/upload-qrcode',
       'pages/personal-center/my-qrcode',
+      'pages/wx-group-view/wx-group-detail',
     ],
     window: {
       backgroundColor: '#f5f5f5',

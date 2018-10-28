@@ -1,5 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View } from '@tarojs/components'
+import { View, Image } from '@tarojs/components'
 import { AtPagination } from 'taro-ui';
 import QrcodeView from './qrcode-view';
 
@@ -35,10 +35,32 @@ class QrcodeList extends Component {
     })
   }
 
+  gotoDetail(qrcodeInfo) {
+    if(!this.props.isOwner) {
+      const { name, desc, image, owner } = qrcodeInfo;
+      Taro.navigateTo({
+        url: `/pages/wx-group-view/wx-group-detail?name=${name}&desc=${desc}&image=${image}&owner=${owner}`,
+      })
+    }
+  }
+
+  onClickImage = (image) => {
+    if(!this.props.isOwner) {
+      Taro.previewImage({ urls: [image]}).catch(err => {console.log(err)})
+    }
+  }
+
   render () {
-    const { qrcodeList, pageSize, total } = this.props;
+    const { qrcodeList, pageSize, total, isOwner } = this.props;
     if(!total) {
-      return <View>暂无数据</View>;
+      return (
+        <View className='at-article__p no-data'>
+          <View>
+            <Image src='/assert/no_data.png' />
+            <View>暂无数据</View>
+          </View>
+        </View>
+      )
     }
     const { current } = this.state;
     return (
@@ -47,8 +69,16 @@ class QrcodeList extends Component {
           {
             qrcodeList.map((qrcodeInfo, index) => {
               return (
-              <View key={index} className='at-col at-col-5 qrcode-list-item'>
-                <QrcodeView qrcodeInfo={qrcodeInfo} />
+              <View
+                onClick={this.gotoDetail.bind(this, qrcodeInfo)}
+                key={index}
+                className='at-col at-col-5 qrcode-list-item'
+              >
+                <QrcodeView
+                  isOwner={isOwner}
+                  onClickImage={this.onClickImage}
+                  qrcodeInfo={qrcodeInfo}
+                />
               </View>
               )
             })

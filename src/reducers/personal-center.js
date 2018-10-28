@@ -1,6 +1,5 @@
 import { 
   GET_USER_INFO,
-  UPLOAD_QRCODE,
   GET_QRCODE_TYPE,
   CHANGE_FORM_VALUE,
  } from '../constants/personal-center'
@@ -8,7 +7,6 @@ import {
 export default {
   handlers: {
     [GET_USER_INFO]: (state, { payload }) => state.updateState('userInfo', payload),
-    [UPLOAD_QRCODE]: (state, { payload }) => state.updateState('tempUrl', payload),
     [GET_QRCODE_TYPE]: (state, { payload }) => {
       const qrcodeTypes = payload.map(res => ({
         id: res.id,

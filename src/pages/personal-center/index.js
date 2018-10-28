@@ -23,12 +23,6 @@ class PersonalCenter extends Component {
     this.state = {};
   }
 
-  componentWillUnmount () { }
-
-  componentDidShow () { }
-
-  componentDidHide () { }
-
   changeUserInfo = ({ detail } = {}) => {
     const userInfo = detail ? detail.userInfo : undefined;
     AV.User.loginWithWeapp().then(user => {
@@ -57,6 +51,11 @@ class PersonalCenter extends Component {
         duration: 1000
       })
     }
+  }
+
+  loginOut = () => {
+    AV.User.logOut();
+    this.props.getUserInfo(null);
   }
 
   render () {
@@ -109,7 +108,7 @@ class PersonalCenter extends Component {
         </View>
         {
           userInfo && 
-          <View onClick={this.changeUserInfo} className='like-button'>
+          <View onClick={this.loginOut} className='like-button'>
             退出登出
           </View>
         }
