@@ -193,9 +193,9 @@ class UploadQrcode extends Component {
           </AtList>
           <AtInput
             name='groupOwner'
-            title='群主号'
+            title='群管理'
             type='text'
-            placeholder='请输入群主微信号'
+            placeholder='请输入群管理微信号'
             value={this.state.groupOwner.value}
             error={this.state.groupOwner.error}
             onChange={this.changeOwner}

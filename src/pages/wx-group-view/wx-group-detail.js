@@ -33,8 +33,8 @@ class WxGroupDetail extends Component {
       >
         <View className='at-article'>{name}</View>
         <View className='at-row wx-qrcode-detail-id at-article__h3 at-row__justify--between'>
-          <View className='at-col at-col-6'>群主id：{owner}</View>
-          <View onClick={this.copyOwnerId} className='at-col at-col-3 wx-qrcode-detail-copy'>复制id</View>
+          <View className='at-col at-col-8 wx-qrcode-detail-over-flow'>群管理微信：{owner}</View>
+          <View onClick={this.copyOwnerId} className='at-col at-col-4 wx-qrcode-detail-copy'>复制微信号</View>
         </View>
         <View className='at-article__p'>{desc}</View>
         <Image className='wx-qrcode-detail-image' src={image} />

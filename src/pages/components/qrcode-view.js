@@ -55,7 +55,7 @@ class QrcodeView extends Component {
       <View className='qrcode-view at-row at-row__justify--center at-row--wrap'>
         <Image onClick={this.clickImage} src={image} className='at-col at-col-12' />
         <View className='at-col at-col-12 qrcode-desc qrcode-view-over-flow'>群描述：{desc}</View>
-        <View className='at-col at-col-12 qrcode-desc'>群主id：{owner}</View>
+        <View className='at-col at-col-12 qrcode-desc qrcode-view-over-flow'>群管理微信：{owner}</View>
         {
           isOwner && 
           <View className='at-row at-col-12 qrcode-view-edit-main'>
@@ -67,7 +67,7 @@ class QrcodeView extends Component {
             </View>
           </View>
         }
-        <View className='at-col at-col-12 qrcode-name'>{name}</View>
+        <View className='at-col at-col-12 qrcode-name qrcode-view-over-flow'>{name}</View>
         <AtModal
           isOpened={isOpenedModal}
           cancelText='取消'
