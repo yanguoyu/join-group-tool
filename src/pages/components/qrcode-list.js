@@ -78,6 +78,7 @@ class QrcodeList extends Component {
                   isOwner={isOwner}
                   onClickImage={this.onClickImage}
                   qrcodeInfo={qrcodeInfo}
+                  onDelete={this.props.onDelete}
                 />
               </View>
               )

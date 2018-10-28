@@ -29,7 +29,6 @@ export default function() {
       }
       keys.shift();
       return this.updateState(firkey,
-        // eslint-disable-next-line
         function(curValue) {
           return (curValue || {}).updateInState(keys, value);
         });

@@ -3,7 +3,7 @@ import { connect } from '@tarojs/redux'
 import { View, Picker } from '@tarojs/components'
 import { AtInput, AtForm, AtNoticebar, AtList, AtListItem } from 'taro-ui'
 import AV from '../../shared/av-weapp-min'
-import { uploadQrcode, getQrcodeType, changeFormValue } from '../../actions/personal-center'
+import { upLoadQrcode, getQrcodeType } from '../../actions/personal-center'
 import './upload-qrcode.less'
 
 const isError = (value) => (value === '' || value === null || value === undefined)
@@ -12,16 +12,12 @@ const isError = (value) => (value === '' || value === null || value === undefine
   userInfo: personalCenter.userInfo,
   tempUrl: personalCenter.tempUrl,
   qrcodeTypes: personalCenter.qrcodeTypes,
-  qrcodeType: personalCenter.formValues.qrcodeType
 }), (dispatch) => ({
-  uploadQrcode(url) {
-    dispatch(uploadQrcode(url))
+  upLoadQrcode(qrcodeInfo) {
+    dispatch(upLoadQrcode(qrcodeInfo))
   },
   getQrcodeType() {
     dispatch(getQrcodeType())
-  },
-  changeFormValue(key, value) {
-    dispatch(changeFormValue({ [key]: value }))
   }
 }))
 class UploadQrcode extends Component {
@@ -35,39 +31,41 @@ class UploadQrcode extends Component {
     this.state = {
       groupName: { error: false },
       groupDescribe: { error: false },
-      groupOwner: { error: false }
+      groupOwner: { error: false },
+      qrcodeTypeIndex: 0,
     };
   }
 
   reset() {
-    this.props.uploadQrcode(null);
     this.setState({
       groupName: { value: '', error: false },
       groupDescribe: { value: '', error: false },
-      groupOwner: { value: '', error: false }
+      groupOwner: { value: '', error: false },
+      tempUrl: null,
     })
   }
 
   componentWillMount () { 
     this.props.getQrcodeType();
     if(this.$router.params.id) {
-      var query = new AV.Query('qrcode_info');
-      query.get(this.$router.params.id).then((todo) => {
-        this.setState({
-          groupName: { value: todo.get('name'), error: false },
-          groupDescribe: { value: todo.get('desc'), error: false },
-          groupOwner: { value: todo.get('owner'), error: false },
-          tempUrl: todo.get('image')
-        })
+      var query = AV.Object.createWithoutData('qrcode_info', this.$router.params.id);
+      query.fetch({
+        include:['qrcode_type']
+        }).then(qrcodeInfo =>{
+          let typeInfo = qrcodeInfo.get('type');
+          this.setState({
+            groupName: { value: qrcodeInfo.get('name'), error: false },
+            groupDescribe: { value: qrcodeInfo.get('desc'), error: false },
+            groupOwner: { value: qrcodeInfo.get('owner'), error: false },
+            tempUrl: qrcodeInfo.get('image')
+          });
+          const qrcodeTypeIndex = this.props.qrcodeTypes.findIndex(item => item.id === typeInfo.id);
+          this.setState({ qrcodeTypeIndex });
       });
     }
   }
 
-  componentDidShow () { }
-
-  componentDidHide () { }
-
-  uploadQrcode = () => {
+  uploadQrcodeImage = () => {
     Taro.chooseImage({
       count: 1,
       sourceType: ['album']
@@ -109,35 +107,14 @@ class UploadQrcode extends Component {
   onSave = () => {
     if(this.checkForm()){
       if(this.state.tempUrl) {
-        const GroupInfo = AV.Object.extend('qrcode_info');
-        const groupType = AV.Object.createWithoutData('qrcode_type', this.props.qrcodeType.id);
-        let groundInfo = null;
-        if(this.$router.params.id) {
-          groundInfo = AV.Object.createWithoutData('qrcode_info', this.$router.params.id);
-        } else {
-          groundInfo = new GroupInfo();
-        }
-        groundInfo.set('name', this.state.groupName.value);
-        groundInfo.set('desc', this.state.groupDescribe.value);
-        groundInfo.set('owner', this.state.groupOwner.value);
-        groundInfo.set('image', this.state.tempUrl);
-        groundInfo.set('type', groupType);
-        if(this.props.userInfo) {
-          const userPointer = AV.Object.createWithoutData('_User', this.props.userInfo.objectId);
-          groundInfo.set('user', userPointer);
-        }
-        groundInfo
-          .save()
-          .then(
-            () => {
-              Taro.showToast({
-                title: '上传成功',
-                icon: 'success',
-                duration: 1000
-              });
-              setTimeout(() => Taro.navigateBack(), 1000);
-            }
-          )
+        this.props.upLoadQrcode({
+          id: this.$router.params.id,
+          name: this.state.groupName.value,
+          desc: this.state.groupDescribe.value,
+          owner: this.state.groupOwner.value,
+          image: this.state.tempUrl,
+          typeId: this.props.qrcodeTypes[this.state.qrcodeTypeIndex].id,
+        });
       } else {
         Taro.showToast({
           title: '请上传群二维码',
@@ -149,7 +126,9 @@ class UploadQrcode extends Component {
   }
 
   changeQrType = ({ detail }) => {
-    this.props.changeFormValue('qrcodeType', this.props.qrcodeTypes[detail.value]);
+    this.setState({
+      qrcodeTypeIndex: detail.value
+    })
   }
 
   viewImage = () => {
@@ -157,8 +136,9 @@ class UploadQrcode extends Component {
   }
   
   render () {
-    const { userInfo, qrcodeTypes, qrcodeType } = this.props;
-    const { tempUrl } = this.state;
+    const { userInfo, qrcodeTypes } = this.props;
+    const { tempUrl, qrcodeTypeIndex } = this.state;
+    const qrcodeType = qrcodeTypes[qrcodeTypeIndex];
     return (
       <View className='upload-qrcode'>
         {
@@ -187,6 +167,7 @@ class UploadQrcode extends Component {
               rangeKey='name'
               range={qrcodeTypes}
               onChange={this.changeQrType}
+              value={qrcodeTypeIndex}
             >
               <AtListItem title='群类型' extraText={qrcodeType.name} />
             </Picker>
@@ -213,7 +194,7 @@ class UploadQrcode extends Component {
           />
         </AtForm>
         <View className='choose-qrcode'>
-          <View className='upload' onClick={this.uploadQrcode}>
+          <View className='upload' onClick={this.uploadQrcodeImage}>
             { tempUrl ? '重新上传二维码' : '上传二维码' }
           </View>
           <View className='at-article__p'>
