@@ -34,11 +34,21 @@ class WxGroupView extends Component {
   }
 
   order = [{
+    label: '更新时间',
+    value: 'updatedAt',
+  },{
     label: '创建时间',
     value: 'createdAt',
   }];
   
   keyNames = ['qrcodeType', 'order'];
+
+  constructor() {
+    super();
+    this.state = {
+      order: 'updatedAt',
+    }
+  }
 
   componentWillMount() {
     this.props.getAllQrcode();
