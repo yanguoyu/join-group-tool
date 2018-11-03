@@ -4,12 +4,15 @@ import { AtActivityIndicator, AtInput } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import QrcodeList from '../components/qrcode-list';
 import DropDown from '../components/drop-down';
+import Error from '../components/error';
 import { getAllQrcode } from '../../actions/wx-group-view';
 import { getQrcodeType } from '../../actions/personal-center';
 
 import './index.less'
 
-@connect(({ wxGroupView, personalCenter }) => ({
+@connect(({ globalData, wxGroupView, personalCenter }) => ({
+  loading: globalData.loading,
+  error: globalData.error,
   qrcodeList: wxGroupView.qrcodeInfo.pageInfo,
   pageNo: wxGroupView.qrcodeInfo.pageNo,
   pageSize: wxGroupView.qrcodeInfo.pageSize,
@@ -89,7 +92,7 @@ class WxGroupView extends Component {
       this.state[this.keyNames[0]],
       this.state[this.keyNames[1]],
     ];
-    const { qrcodeCount } = this.props;
+    const { qrcodeCount, loading, error } = this.props;
     return (
       <View className='index'>
         <View className='search'>
@@ -111,17 +114,21 @@ class WxGroupView extends Component {
           />
         </View>
         {
-          this.state.qrcodeList ?
-          <QrcodeList
-            qrcodeList={this.state.qrcodeList}
-            total={qrcodeCount}
-            onPageChange={this.onPageChange}
-          /> : 
-          <AtActivityIndicator mode='center' content='加载中...' />
+          loading ? 
+          <AtActivityIndicator mode='center' content='加载中' /> : 
+          (
+            error ?
+            <Error/> :
+            <QrcodeList
+              qrcodeList={this.state.qrcodeList}
+              total={qrcodeCount}
+              onPageChange={this.onPageChange}
+            />
+          )
         }
       </View>
     )
   }
 }
 
-export default WxGroupView
+export default WxGroupView;

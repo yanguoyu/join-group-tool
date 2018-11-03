@@ -1,6 +1,18 @@
 .qrcode-view {
   background-color:#e8e8e8;
 
+  .qrcode-view-image-contain {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .qrcode-view-image {
+      height: 320px;
+      width: 280px;
+      padding: 20px;
+    }
+  }
+
   .qrcode-view-over-flow {
     overflow:hidden;
     white-space:nowrap;
@@ -18,11 +30,6 @@
     color:#262626;
     background-color: #fafafa;
     padding-top:10px;
-  }
-
-  image {
-    height: 300px;
-    padding: 20px;
   }
 
   .qrcode-view-edit-main {

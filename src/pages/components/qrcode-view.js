@@ -47,7 +47,9 @@ class QrcodeView extends Component {
     const { name, desc, image, owner } = qrcodeInfo;
     return (
       <View className='qrcode-view at-row at-row__justify--center at-row--wrap'>
-        <Image onClick={this.clickImage} src={image} className='at-col at-col-12' />
+        <View className='qrcode-view-image-contain'>
+          <Image onClick={this.clickImage} src={image} className='qrcode-view-image' />
+        </View>
         <View className='at-col at-col-12 qrcode-desc qrcode-view-over-flow'>群描述：{desc}</View>
         <View className='at-col at-col-12 qrcode-desc qrcode-view-over-flow'>群管理微信：{owner}</View>
         {

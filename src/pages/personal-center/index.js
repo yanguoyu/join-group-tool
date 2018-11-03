@@ -2,7 +2,6 @@ import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View, Image, Button } from '@tarojs/components'
 import { AtIcon } from 'taro-ui'
-import AV from '../../shared/av-weapp-min'
 import { getUserInfo } from '../../actions/personal-center'
 import './index.less'
 
@@ -41,7 +40,6 @@ class PersonalCenter extends Component {
   }
 
   loginOut = () => {
-    AV.User.logOut();
     this.props.getUserInfo(null);
   }
 

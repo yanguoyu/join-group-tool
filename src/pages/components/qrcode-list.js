@@ -101,4 +101,4 @@ class QrcodeList extends Component {
   }
 }
 
-export default QrcodeList
+export default (QrcodeList);

@@ -1,21 +1,26 @@
 import isPromise from './is-promise';
+import { addInPromiseCount, delInPromiseCount, promiseError }  from '../actions/global-data';
 
-export default store => next => action => {
+export default ({ dispatch, getState }) => next => action => {
   if(isPromise(action.payload)) {
+    dispatch(addInPromiseCount(action.type));
     action.payload.then(res => {
       next({
         ...action,
         payload: res.result
       })
+      dispatch(delInPromiseCount(action.type));
       if(action.handlers) {
-        action.handlers.success && action.handlers.success(res.result, store.dispatch, store.getState());
-        action.handlers.finish && action.handlers.finish(res.result, store.dispatch, store.getState());
+        action.handlers.success && action.handlers.success(res.result, dispatch, getState());
+        action.handlers.finish && action.handlers.finish(res.result, dispatch, getState());
       }
     }).catch(err=> {
+      dispatch(delInPromiseCount(action.type));
+      dispatch(promiseError(action.type));
       console.log(err);
       if(action.handlers) {
-        action.handlers.failed && action.handlers.failed(err, store.dispatch, store.getState());
-        action.handlers.finish && action.handlers.finish(err, store.dispatch, store.getState());
+        action.handlers.failed && action.handlers.failed(err, dispatch, getState());
+        action.handlers.finish && action.handlers.finish(err, dispatch, getState());
       }
     })
   } else {
