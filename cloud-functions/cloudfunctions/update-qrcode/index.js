@@ -37,6 +37,7 @@ exports.main = async (event) => {
       image,
       user: OPENID,
       createAt: db.serverDate(),
+      updateAt: db.serverDate(),
     }
   });
 };

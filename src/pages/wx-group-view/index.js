@@ -37,10 +37,10 @@ class WxGroupView extends Component {
 
   order = [{
     label: '更新时间',
-    value: 'updatedAt',
+    value: 'updateAt',
   },{
     label: '创建时间',
-    value: 'createdAt',
+    value: 'createAt',
   }];
   
   keyNames = ['qrcodeType', 'order'];
@@ -48,7 +48,7 @@ class WxGroupView extends Component {
   constructor() {
     super();
     this.state = {
-      order: 'updatedAt',
+      order: 'createAt',
     }
   }
 
@@ -58,16 +58,12 @@ class WxGroupView extends Component {
   }
 
   search = (page) => {
-    if(this.state.key || this.state.qrcodeType || this.state.order) {
-      this.props.getQrcodeByCondition({
-        name: this.state.key,
-        type: this.state.qrcodeType,
-        order: this.state.order,
-        page,
-      });
-    }else {
-      this.props.getAllQrcode(page);
-    }
+    this.props.getAllQrcode({
+      name: this.state.key,
+      type: this.state.qrcodeType,
+      order: this.state.order,
+      page,
+    });
   }
 
   changeKey = (key) => {
