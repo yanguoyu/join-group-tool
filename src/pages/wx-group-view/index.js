@@ -4,24 +4,23 @@ import { AtActivityIndicator, AtInput } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import QrcodeList from '../components/qrcode-list';
 import DropDown from '../components/drop-down';
-import { getAllQrcode, getQrcodeByCondition } from '../../actions/wx-group-view';
+import { getAllQrcode } from '../../actions/wx-group-view';
 import { getQrcodeType } from '../../actions/personal-center';
 
 import './index.less'
 
 @connect(({ wxGroupView, personalCenter }) => ({
-  qrcodeList: wxGroupView.qrcodeList,
+  qrcodeList: wxGroupView.qrcodeInfo.pageInfo,
+  pageNo: wxGroupView.qrcodeInfo.pageNo,
+  pageSize: wxGroupView.qrcodeInfo.pageSize,
+  qrcodeCount: wxGroupView.qrcodeInfo.count,
   qrcodeTypes: personalCenter.qrcodeTypes.map(item => ({
     label: item.name,
-    value: item.id
+    value: item._id
   })),
-  qrcodeCount: wxGroupView.qrcodeCount,
 }), (dispatch) => ({
-  getAllQrcode(page) {
-    dispatch(getAllQrcode(page))
-  },
-  getQrcodeByCondition(conditions) {
-    dispatch(getQrcodeByCondition(conditions))
+  getAllQrcode(queryParams) {
+    dispatch(getAllQrcode(queryParams))
   },
   getQrcodeType() {
     dispatch(getQrcodeType())

@@ -3,6 +3,7 @@
   "projectname": "join-group-tool",
   "description": "join-group-tool",
   "appid": "touristappid",
+  "cloudfunctionRoot": "cloudfunctions/",
   "setting": {
     "urlCheck": true,
     "es6": false,

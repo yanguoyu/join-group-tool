@@ -2,7 +2,6 @@ import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View, Picker } from '@tarojs/components'
 import { AtInput, AtForm, AtNoticebar, AtList, AtListItem } from 'taro-ui'
-import AV from '../../shared/av-weapp-min'
 import { upLoadQrcode, getQrcodeType } from '../../actions/personal-center'
 import './upload-qrcode.less'
 
@@ -47,21 +46,24 @@ class UploadQrcode extends Component {
 
   componentWillMount () { 
     this.props.getQrcodeType();
-    if(this.$router.params.id) {
-      var query = AV.Object.createWithoutData('qrcode_info', this.$router.params.id);
-      query.fetch({
-        include:['qrcode_type']
-        }).then(qrcodeInfo =>{
-          let typeInfo = qrcodeInfo.get('type');
-          this.setState({
-            groupName: { value: qrcodeInfo.get('name'), error: false },
-            groupDescribe: { value: qrcodeInfo.get('desc'), error: false },
-            groupOwner: { value: qrcodeInfo.get('owner'), error: false },
-            tempUrl: qrcodeInfo.get('image')
-          });
-          const qrcodeTypeIndex = this.props.qrcodeTypes.findIndex(item => item.id === typeInfo.id);
-          this.setState({ qrcodeTypeIndex });
-      });
+    if(this.$router.params._id) {
+      wx.cloud.callFunction({
+        name: 'get-qrcode-byid',
+        data: {
+          _id: this.$router.params._id
+        },
+      }).then(res => {
+        const qrcodeInfo = res.result;
+        let typeInfo = qrcodeInfo.type;
+        this.setState({
+          groupName: { value: qrcodeInfo.name, error: false },
+          groupDescribe: { value: qrcodeInfo.desc, error: false },
+          groupOwner: { value: qrcodeInfo.owner, error: false },
+          tempUrl: qrcodeInfo.image
+        });
+        const qrcodeTypeIndex = this.props.qrcodeTypes.findIndex(item => item._id === typeInfo);
+        this.setState({ qrcodeTypeIndex });
+      })
     }
   }
 
@@ -70,18 +72,15 @@ class UploadQrcode extends Component {
       count: 1,
       sourceType: ['album']
     }).then( qrCodeSource => {
-      var tempFilePath = qrCodeSource.tempFilePaths[0];
-      new AV.File('qr-code', {
-        blob: {
-          uri: tempFilePath,
-        },
-      }).save().then(
-        file => {
-          this.setState({
-            tempUrl: file.url()
-          })
-        }
-      );
+      wx.cloud.uploadFile({
+        cloudPath: `qrcodes-images/${new Date().getTime()}}.png`,
+        filePath: qrCodeSource.tempFilePaths[0],
+      }).then(res => {
+        this.setState({
+          tempUrl: res.fileID
+        })
+        console.log(res.fileID)
+      })
     })
   }
 
@@ -108,12 +107,12 @@ class UploadQrcode extends Component {
     if(this.checkForm()){
       if(this.state.tempUrl) {
         this.props.upLoadQrcode({
-          id: this.$router.params.id,
+          _id: this.$router.params._id,
           name: this.state.groupName.value,
           desc: this.state.groupDescribe.value,
           owner: this.state.groupOwner.value,
           image: this.state.tempUrl,
-          typeId: this.props.qrcodeTypes[this.state.qrcodeTypeIndex].id,
+          typeId: this.props.qrcodeTypes[this.state.qrcodeTypeIndex]._id,
         });
       } else {
         Taro.showToast({

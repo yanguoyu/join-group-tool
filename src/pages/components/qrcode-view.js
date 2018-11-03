@@ -24,7 +24,7 @@ class QrcodeView extends Component {
 
   edit = () => {
     Taro.navigateTo({
-      url: `/pages/personal-center/upload-qrcode?id=${this.props.qrcodeInfo.id}`
+      url: `/pages/personal-center/upload-qrcode?_id=${this.props.qrcodeInfo._id}`
     })
   }
 
@@ -38,7 +38,7 @@ class QrcodeView extends Component {
 
   handleConfirm = () => {
     this.setState({ isOpenedModal: false});
-    this.props.onDelete(this.props.qrcodeInfo.id);
+    this.props.onDelete(this.props.qrcodeInfo._id);
   }
 
   render () {

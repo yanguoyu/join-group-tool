@@ -11,15 +11,9 @@ import {
 export default {
   handlers: {
     [GET_USER_INFO]: (state, { payload }) => state.updateState('userInfo', payload),
-    [GET_QRCODE_TYPE]: (state, { payload }) => {
-      const qrcodeTypes = payload.map(res => ({
-        id: res.id,
-        name: res.get('name'),
-      }))
-      return state
-        .updateState('qrcodeTypes', qrcodeTypes)
-        .updateInState(['formValues', 'qrcodeType'], qrcodeTypes[0]);
-    },
+    [GET_QRCODE_TYPE]: (state, { payload }) =>
+      state.updateState('qrcodeTypes', payload)
+        .updateInState(['formValues', 'qrcodeType'], payload[0]),
     [CHANGE_FORM_VALUE]: (state, { payload }) =>
       state.updateState('formValues', (formValues) => ({...formValues, ...payload })),
     [UPLOAD_QRCODE]: (state, { payload, meta }) => {
@@ -29,25 +23,23 @@ export default {
         duration: 1000
       });
       setTimeout(() => Taro.navigateBack(), 1000);
-      const index = state.userQrcodes.findIndex(item => item.id === payload.id);
+      const _id = payload._id;
+      const index = state.userQrcodes.findIndex(item => item._id === _id);
       if(index === -1){
         return state.updateState('userQrcodes', userQrcodes => [...userQrcodes, {
-          id: payload.id,
+          _id,
           ...meta,
         }]);
       }
-      return state.updateInState(['userQrcodes',index], {
-        id: payload.id,
-        ...meta,
-      });
+      return state.updateInState(['userQrcodes',index], meta);
     },
-    [DELETE_QRCODE]: (state, { id }) => {
+    [DELETE_QRCODE]: (state, { _id }) => {
       Taro.showToast({
         title: '删除成功',
         image: '/assert/success.png',
         duration: 1000
       })
-      const index = state.userQrcodes.findIndex(item => item.id === id);
+      const index = state.userQrcodes.findIndex(item => item._id === _id);
       return state.updateState('userQrcodes', userQrcodes => {
         const res = [...userQrcodes];
         res.splice(index, 1);
@@ -55,13 +47,7 @@ export default {
       });
     },
     [GET_USE_QRCODES]: (state, { payload }) =>
-      state.updateState('userQrcodes', payload.map(value => ({
-        name: value.get('name'),
-        desc: value.get('desc'),
-        image: value.get('image'),
-        owner: value.get('owner'),
-        id: value.id
-    })))
+      state.updateState('userQrcodes', payload.pageInfo)
   },
   initState: {
     qrcodeTypes: [],

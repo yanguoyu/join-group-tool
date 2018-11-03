@@ -1,7 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import '@tarojs/async-await'
 import { Provider } from '@tarojs/redux'
-import AV from './shared/av-weapp-min.js'
 
 import WxGroupView from './pages/wx-group-view'
 
@@ -20,10 +19,9 @@ if (process.env.TARO_ENV === "weapp") {
   require("taro-ui/dist/h5/css/index.css")
 }
 
-AV.init({
-  appId: 'l1buxITuSPQL5MatNdwhtcm2-gzGzoHsz',
-  appKey: 'LVpkrT2ioDeTL92xHsafKnRb',
-});
+wx.cloud.init({
+  traceUser: true,
+})
 
 class App extends Component {
 

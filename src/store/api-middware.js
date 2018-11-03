@@ -5,16 +5,18 @@ export default store => next => action => {
     action.payload.then(res => {
       next({
         ...action,
-        payload: res
+        payload: res.result
       })
       if(action.handlers) {
-        action.handlers.success && action.handlers.success(res, store.dispatch, store.getState());
-        action.handlers.finish && action.handlers.finish(res, store.dispatch, store.getState());
+        action.handlers.success && action.handlers.success(res.result, store.dispatch, store.getState());
+        action.handlers.finish && action.handlers.finish(res.result, store.dispatch, store.getState());
       }
     }).catch(err=> {
       console.log(err);
-      action.handlers.failed && action.handlers.failed(err, store.dispatch, store.getState());
-      action.handlers.finish && action.handlers.finish(err, store.dispatch, store.getState());
+      if(action.handlers) {
+        action.handlers.failed && action.handlers.failed(err, store.dispatch, store.getState());
+        action.handlers.finish && action.handlers.finish(err, store.dispatch, store.getState());
+      }
     })
   } else {
     next(action);

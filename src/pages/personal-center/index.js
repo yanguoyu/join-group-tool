@@ -25,12 +25,7 @@ class PersonalCenter extends Component {
 
   changeUserInfo = ({ detail } = {}) => {
     const userInfo = detail ? detail.userInfo : undefined;
-    AV.User.loginWithWeapp().then(user => {
-      this.props.getUserInfo({
-        ...userInfo,
-        ...user.toJSON(),
-      });
-    });
+    this.props.getUserInfo(userInfo);
   }
 
   uploadQrcode = () => {
@@ -40,17 +35,9 @@ class PersonalCenter extends Component {
   }
 
   watchMyCode = () => {
-    if(this.props.userInfo && this.props.userInfo.objectId) {
-      Taro.navigateTo({
-        url: '/pages/personal-center/my-qrcode'
-      })
-    } else {
-      Taro.showToast({
-        title: '请登陆后操作',
-        icon: 'none',
-        duration: 1000
-      })
-    }
+    Taro.navigateTo({
+      url: '/pages/personal-center/my-qrcode'
+    })
   }
 
   loginOut = () => {

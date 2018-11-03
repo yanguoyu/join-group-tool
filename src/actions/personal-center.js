@@ -7,7 +7,6 @@ import {
   DELETE_QRCODE,
   GET_USE_QRCODES,
 } from '../constants/personal-center'
-import AV from '../shared/av-weapp-min'
 
 export const getUserInfo = (userInfo) => {
   return {
@@ -17,10 +16,11 @@ export const getUserInfo = (userInfo) => {
 }
 
 export const getQrcodeType = () => {
-  const qrcodeQuery = new AV.Query('qrcode_type');
   return {
     type: GET_QRCODE_TYPE,
-    payload: qrcodeQuery.find()
+    payload: wx.cloud.callFunction({
+      name: 'get-qrtypes'
+    })
   }
 }
 
@@ -31,37 +31,33 @@ export const changeFormValue = (values) => {
   }
 }
 
-export const upLoadQrcode = ({id, name, desc, owner, image, typeId}) => {
-  const GroupInfo = AV.Object.extend('qrcode_info');
-  const groupType = AV.Object.createWithoutData('qrcode_type', typeId);
-  let groundInfo = null;
-  if(id) {
-    groundInfo = AV.Object.createWithoutData('qrcode_info', id);
-  } else {
-    groundInfo = new GroupInfo();
-  }
-  groundInfo.set('name', name);
-  groundInfo.set('desc', desc);
-  groundInfo.set('owner', owner);
-  groundInfo.set('image', image);
-  groundInfo.set('type', groupType);
-  const user = AV.User.current();
-  if(user) {
-    const userPointer = AV.Object.createWithoutData('_User', user.id);
-    groundInfo.set('user', userPointer);
-  }
+export const upLoadQrcode = ({_id, name, desc, owner, image, typeId}) => {
   return {
     type: UPLOAD_QRCODE,
-    payload: groundInfo.save(),
-    meta: { id, name, desc, owner, image, typeId },
+    payload: wx.cloud.callFunction({
+      name: 'update-qrcode',
+      data: {
+        name,
+        type,
+        desc,
+        owner,
+        image,
+        _id,
+      }
+    }),
+    meta: { _id, name, desc, owner, image, typeId },
   }
 }
 
-export const deleteQrcode = (id) => {
-  const deleteQrcodeIns = AV.Object.createWithoutData('qrcode_info', id);
+export const deleteQrcode = (_id) => {
   return {
     type: DELETE_QRCODE,
-    payload: deleteQrcodeIns.destroy(),
+    payload: wx.cloud.callFunction({
+      name: 'update-qrcode',
+      data: {
+        _id,
+      }
+    }),
     handlers: {
       failed: () => {
         Taro.showToast({
@@ -71,17 +67,18 @@ export const deleteQrcode = (id) => {
         })
       }
     },
-    id,
+    _id,
   }
 }
 
 export const getUserQrcodes = () => {
-  const user = AV.User.current();
-  const curUser = AV.Object.createWithoutData('_User', user.id);
-  const qrcodeQuery = new AV.Query('qrcode_info');
-  qrcodeQuery.equalTo('user', curUser);
   return {
     type: GET_USE_QRCODES,
-    payload: qrcodeQuery.find(),
+    payload: wx.cloud.callFunction({
+      name: 'get-qrcodes',
+      data: {
+        myself: true,
+      }
+    }),
   }
 }

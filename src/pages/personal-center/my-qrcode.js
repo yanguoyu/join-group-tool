@@ -8,8 +8,8 @@ import { deleteQrcode, getUserQrcodes } from '../../actions/personal-center'
   userInfo: personalCenter.userInfo,
   userQrcodes: personalCenter.userQrcodes
 }), (dispatch) => ({
-  deleteQrcode(id) {
-    dispatch(deleteQrcode(id))
+  deleteQrcode(_id) {
+    dispatch(deleteQrcode(_id))
   },
   getUserQrcodes() {
     dispatch(getUserQrcodes())
@@ -40,8 +40,8 @@ class MyQrcode extends Component {
     });
   }
 
-  delete = (id) => {
-    this.props.deleteQrcode(id);
+  delete = (_id) => {
+    this.props.deleteQrcode(_id);
   }
 
   render () {

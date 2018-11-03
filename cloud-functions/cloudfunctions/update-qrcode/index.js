@@ -4,7 +4,7 @@ cloud.init();
 
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext();
-  const db = cloud.collection('qrcodes');
+  const db = cloud.database().collection('qrcodes');
 
   const {
     name,
@@ -12,10 +12,10 @@ exports.main = async (event) => {
     desc,
     owner,
     image,
-    id,
+    _id,
   } = event;
-  if (id) {
-    return await db.doc(id).update({
+  if (_id) {
+    return await db.doc(_id).update({
       name,
       type,
       desc,
@@ -31,7 +31,7 @@ exports.main = async (event) => {
     desc,
     owner,
     image,
-    user: OPENID,
+    user: openid,
     createAt: db.serverDate(),
   });
 };
