@@ -1,13 +1,16 @@
 import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View, Picker } from '@tarojs/components'
-import { AtInput, AtForm, AtNoticebar, AtList, AtListItem } from 'taro-ui'
+import { AtInput, AtForm, AtActivityIndicator, AtList, AtListItem } from 'taro-ui'
 import { upLoadQrcode, getQrcodeType } from '../../actions/personal-center'
+import Error from '../components/error';
 import './upload-qrcode.less'
 
 const isError = (value) => (value === '' || value === null || value === undefined)
 
-@connect(({ personalCenter }) => ({
+@connect(({ globalData, personalCenter }) => ({
+  loading: globalData.loading,
+  error: globalData.error,
   userInfo: personalCenter.userInfo,
   tempUrl: personalCenter.tempUrl,
   qrcodeTypes: personalCenter.qrcodeTypes,
@@ -47,23 +50,26 @@ class UploadQrcode extends Component {
   componentWillMount () { 
     this.props.getQrcodeType();
     if(this.$router.params._id) {
-      wx.cloud.callFunction({
-        name: 'get-qrcode-byid',
-        data: {
-          _id: this.$router.params._id
-        },
-      }).then(res => {
-        const qrcodeInfo = res.result;
-        let typeInfo = qrcodeInfo.type;
-        this.setState({
-          groupName: { value: qrcodeInfo.name, error: false },
-          groupDescribe: { value: qrcodeInfo.desc, error: false },
-          groupOwner: { value: qrcodeInfo.owner, error: false },
-          tempUrl: qrcodeInfo.image
-        });
-        const qrcodeTypeIndex = this.props.qrcodeTypes.findIndex(item => item._id === typeInfo);
-        this.setState({ qrcodeTypeIndex });
+      setTimeout(() => {
+        wx.cloud.callFunction({
+          name: 'get-qrcode-byid',
+          data: {
+            _id: this.$router.params._id
+          },
+        }).then(res => {
+          const qrcodeInfo = res.result;
+          let typeInfo = qrcodeInfo.type;
+          this.setState({
+            groupName: { value: qrcodeInfo.name, error: false },
+            groupDescribe: { value: qrcodeInfo.desc, error: false },
+            groupOwner: { value: qrcodeInfo.owner, error: false },
+            tempUrl: qrcodeInfo.image
+          });
+          const qrcodeTypeIndex = this.props.qrcodeTypes.findIndex(item => item._id === typeInfo);
+          this.setState({ qrcodeTypeIndex });
+        })
       })
+
     }
   }
 
@@ -72,14 +78,17 @@ class UploadQrcode extends Component {
       count: 1,
       sourceType: ['album']
     }).then( qrCodeSource => {
+      Taro.showLoading({
+        title: '上传中'
+      });
       wx.cloud.uploadFile({
-        cloudPath: `qrcodes-images/${new Date().getTime()}}.png`,
+        cloudPath: `qrcodes-images/${new Date().getTime()}.png`,
         filePath: qrCodeSource.tempFilePaths[0],
       }).then(res => {
         this.setState({
           tempUrl: res.fileID
         })
-        console.log(res.fileID)
+        Taro.hideLoading();
       })
     })
   }
@@ -135,81 +144,82 @@ class UploadQrcode extends Component {
   }
   
   render () {
-    const { userInfo, qrcodeTypes } = this.props;
+    const { qrcodeTypes, loading, error } = this.props;
     const { tempUrl, qrcodeTypeIndex } = this.state;
     const qrcodeType = qrcodeTypes[qrcodeTypeIndex];
     return (
-      <View className='upload-qrcode'>
+      <View>
         {
-          !userInfo &&
-          <View className='notice'>
-            <AtNoticebar icon='bell' single>
-              提示：未登陆不会把上传的二维码记录到我上传的二维码。
-            </AtNoticebar>
+          loading ?
+          <AtActivityIndicator mode='center' content='加载中' /> : 
+          error ?
+          <Error/> :
+          <View className='upload-qrcode'>
+            <AtForm>
+              <AtInput
+                name='groupName'
+                title='群名称'
+                type='text'
+                placeholder='请输入微信群名称'
+                border={false}
+                value={this.state.groupName.value}
+                error={this.state.groupName.error}
+                onChange={this.changeName}
+                maxlength={20}
+              />
+              <AtList class='qrcode-type'>
+                <Picker
+                  mode='selector'
+                  rangeKey='name'
+                  range={qrcodeTypes}
+                  onChange={this.changeQrType}
+                  value={qrcodeTypeIndex}
+                >
+                  <AtListItem title='群类型' extraText={qrcodeType.name} />
+                </Picker>
+              </AtList>
+              <AtInput
+                name='groupOwner'
+                title='群管理'
+                type='text'
+                placeholder='请输入群管理微信号'
+                value={this.state.groupOwner.value}
+                error={this.state.groupOwner.error}
+                onChange={this.changeOwner}
+                maxlength={20}
+              />
+              <AtInput
+                name='groupDescribe'
+                title='群描述'
+                type='text'
+                placeholder='请输入微信群简介'
+                border={false}
+                value={this.state.groupDescribe.value}
+                error={this.state.groupDescribe.error}
+                onChange={this.changeDescribe}
+              />
+            </AtForm>
+            <View className='choose-qrcode'>
+              <View className='upload' onClick={this.uploadQrcodeImage}>
+                { tempUrl ? '重新上传二维码' : '上传二维码' }
+              </View>
+              <View className='at-article__p'>
+                若群限制加入，请上传群主或者群管理微信二维码
+              </View>
+              {
+                tempUrl &&
+                <View className='upload upload-qrcode-image-view' onClick={this.viewImage}>
+                  预览二维码
+                </View>
+              }
+            </View>
+            <View className='save-or-cancel' onClick={this.onSave}>
+              保存
+            </View>
           </View>
         }
-        <AtForm>
-          <AtInput
-            name='groupName'
-            title='群名称'
-            type='text'
-            placeholder='请输入微信群名称'
-            border={false}
-            value={this.state.groupName.value}
-            error={this.state.groupName.error}
-            onChange={this.changeName}
-            maxlength={20}
-          />
-          <AtList class='qrcode-type'>
-            <Picker
-              mode='selector'
-              rangeKey='name'
-              range={qrcodeTypes}
-              onChange={this.changeQrType}
-              value={qrcodeTypeIndex}
-            >
-              <AtListItem title='群类型' extraText={qrcodeType.name} />
-            </Picker>
-          </AtList>
-          <AtInput
-            name='groupOwner'
-            title='群管理'
-            type='text'
-            placeholder='请输入群管理微信号'
-            value={this.state.groupOwner.value}
-            error={this.state.groupOwner.error}
-            onChange={this.changeOwner}
-            maxlength={20}
-          />
-          <AtInput
-            name='groupDescribe'
-            title='群描述'
-            type='text'
-            placeholder='请输入微信群简介'
-            border={false}
-            value={this.state.groupDescribe.value}
-            error={this.state.groupDescribe.error}
-            onChange={this.changeDescribe}
-          />
-        </AtForm>
-        <View className='choose-qrcode'>
-          <View className='upload' onClick={this.uploadQrcodeImage}>
-            { tempUrl ? '重新上传二维码' : '上传二维码' }
-          </View>
-          <View className='at-article__p'>
-            若群限制加入，请上传群主或者群管理微信二维码
-          </View>
-          {
-            tempUrl &&
-            <View className='upload upload-qrcode-image-view' onClick={this.viewImage}>
-              预览二维码
-            </View>
-          }
-        </View>
-        <View className='save-or-cancel' onClick={this.onSave}>
-          保存
-        </View>
       </View>
+
     )
   }
 }

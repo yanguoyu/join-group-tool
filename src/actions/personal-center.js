@@ -6,6 +6,8 @@ import {
   UPLOAD_QRCODE,
   DELETE_QRCODE,
   GET_USE_QRCODES,
+  RESET_CUR_QRCODE_INFO,
+  GET_CUR_QRCODE_INFO,
 } from '../constants/personal-center'
 
 export const getUserInfo = (userInfo) => {
@@ -38,7 +40,7 @@ export const upLoadQrcode = ({_id, name, desc, owner, image, typeId}) => {
       name: 'update-qrcode',
       data: {
         name,
-        type,
+        type: typeId,
         desc,
         owner,
         image,
@@ -53,7 +55,7 @@ export const deleteQrcode = (_id) => {
   return {
     type: DELETE_QRCODE,
     payload: wx.cloud.callFunction({
-      name: 'update-qrcode',
+      name: 'delete-qrcode',
       data: {
         _id,
       }
@@ -82,3 +84,17 @@ export const getUserQrcodes = () => {
     }),
   }
 }
+
+export const resetCurCodeInfo = () => ({
+  type: RESET_CUR_QRCODE_INFO,
+})
+
+export const getCurQrcodeInfo = (_id) => ({
+  type: GET_CUR_QRCODE_INFO,
+  payload: wx.cloud.callFunction({
+    name: 'get-qrcode-byid',
+    data: {
+      _id,
+    },
+  })
+})

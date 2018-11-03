@@ -3,20 +3,20 @@ const cloud = require('wx-server-sdk');
 cloud.init();
 
 exports.main = async (event) => {
-  const { OPENID } = cloud.getWXContext();
-  const db = cloud.database().collection('qrcodes');
+  const db = cloud.database();
+  const collection = db.collection('qrcodes');
 
   const {
-    user,
     _id,
   } = event;
-  if (user !== OPENID || !_id) {
+  if (!_id) {
     return {
       error: '',
     };
   }
-  const qrcode = db.doc(_id);
-  const res = await db.doc(_id).remove();
-  await db.deleteFile({ fileList: [qrcode.image] });
+  const qrcode = await collection.doc(_id).get();
+  const res = await collection.doc(_id).remove();
+  console.log(qrcode.data.image);
+  await cloud.deleteFile({ fileList: [qrcode.data.image] });
   return res;
 };

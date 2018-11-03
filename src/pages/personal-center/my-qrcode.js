@@ -1,10 +1,14 @@
 import Taro, { Component } from '@tarojs/taro'
 import { connect } from '@tarojs/redux'
 import { View } from '@tarojs/components'
+import { AtActivityIndicator } from 'taro-ui';
 import QrcodeList from '../components/qrcode-list';
 import { deleteQrcode, getUserQrcodes } from '../../actions/personal-center'
+import Error from '../components/error';
 
-@connect(({ personalCenter }) => ({
+@connect(({ globalData, personalCenter }) => ({
+  loading: globalData.loading,
+  error: globalData.error,
   userInfo: personalCenter.userInfo,
   userQrcodes: personalCenter.userQrcodes
 }), (dispatch) => ({
@@ -46,19 +50,25 @@ class MyQrcode extends Component {
 
   render () {
     const { current, pageSize } = this.state;
-    const { userQrcodes } = this.props;
+    const { userQrcodes, loading, error } = this.props;
     const total = userQrcodes.length;
     const curDisplayList = userQrcodes.slice((current-1)*pageSize, current*pageSize);
     return (
       <View className='qrcode-list'>
-        <QrcodeList
-          isOwner
-          qrcodeList={curDisplayList}
-          total={total}
-          onPageChange={this.onPageChange}
-          pageSize={pageSize}
-          onDelete={this.delete}
-        />
+        {
+          loading ?
+          <AtActivityIndicator mode='center' content='加载中' /> : 
+          error ?
+          <Error/> :
+          <QrcodeList
+            isOwner
+            qrcodeList={curDisplayList}
+            total={total}
+            onPageChange={this.onPageChange}
+            pageSize={pageSize}
+            onDelete={this.delete}
+          />
+        }
       </View>
     )
   }
