@@ -3,20 +3,24 @@ import { connect } from '@tarojs/redux'
 import { View } from '@tarojs/components'
 import { AtActivityIndicator } from 'taro-ui';
 import QrcodeList from '../components/qrcode-list';
-import { deleteQrcode, getUserQrcodes } from '../../actions/personal-center'
+import { deleteQrcode, getUserQrcodes, getUserOpenId } from '../../actions/personal-center'
 import Error from '../components/error';
 
 @connect(({ globalData, personalCenter }) => ({
   loading: globalData.loading,
   error: globalData.error,
   userInfo: personalCenter.userInfo,
-  userQrcodes: personalCenter.userQrcodes
+  userQrcodes: personalCenter.userQrcodes,
+  userOpenId: personalCenter.userOpenId,
 }), (dispatch) => ({
   deleteQrcode(_id) {
     dispatch(deleteQrcode(_id))
   },
   getUserQrcodes() {
     dispatch(getUserQrcodes())
+  },
+  getUserOpenId() {
+    dispatch(getUserOpenId())
   }
 }))
 class MyQrcode extends Component {
@@ -27,6 +31,9 @@ class MyQrcode extends Component {
 
   constructor() {
     super();
+    Taro.showShareMenu({
+      withShareTicket: true
+    })
     this.state = {
       current: 1,
       pageSize: 4,
@@ -36,6 +43,7 @@ class MyQrcode extends Component {
   componentWillMount() {
     this.setState({ current: 1});
     this.props.getUserQrcodes();
+    this.props.getUserOpenId();
   }
 
   onPageChange = (current) => {
@@ -46,6 +54,13 @@ class MyQrcode extends Component {
 
   delete = (_id) => {
     this.props.deleteQrcode(_id);
+  }
+
+  onShareAppMessage() {
+    return {
+      title: '快来加入我的群吧',
+      path: `/pages/wx-group-view/index?user=${this.props.userOpenId}`
+    }
   }
 
   render () {

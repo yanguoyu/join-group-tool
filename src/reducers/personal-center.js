@@ -8,6 +8,7 @@ import {
   GET_USE_QRCODES,
   RESET_CUR_QRCODE_INFO,
   GET_CUR_QRCODE_INFO,
+  GET_USER_OPEN_ID,
  } from '../constants/personal-center'
 
 export default {
@@ -67,7 +68,9 @@ export default {
         tempUrl: payload.image,
         qrcodeTypeIndex,
       })
-    }
+    },
+    [GET_USER_OPEN_ID]: (state, { payload }) =>
+      state.updateState('userOpenId', payload)
   },
   initState: {
     qrcodeTypes: [],

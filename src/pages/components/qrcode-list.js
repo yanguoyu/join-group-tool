@@ -14,20 +14,12 @@ if (process.env.TARO_ENV === "weapp") {
 
 class QrcodeList extends Component {
 
-  constructor() {
-    super(...arguments);
-    this.state = {
-      current: 1,
-    }
-  }
-
   static defaultProps = {
     qrcodeList: [],
     pageSize: 10
   }
 
   changePage = ({ current }) => {
-    this.setState({ current });
     this.props.onPageChange(current);
     Taro.pageScrollTo({
       scrollTop: 0,
@@ -51,7 +43,7 @@ class QrcodeList extends Component {
   }
 
   render () {
-    const { qrcodeList, pageSize, total, isOwner } = this.props;
+    const { qrcodeList, pageSize, total, isOwner, current } = this.props;
     if(!total) {
       return (
         <View className='at-article__p no-data'>
@@ -62,7 +54,6 @@ class QrcodeList extends Component {
         </View>
       )
     }
-    const { current } = this.state;
     return (
       <View className='qrcode-list'>
         <View className='at-row at-row__justify--left at-row--wrap'>
@@ -101,4 +92,4 @@ class QrcodeList extends Component {
   }
 }
 
-export default (QrcodeList);
+export default QrcodeList;

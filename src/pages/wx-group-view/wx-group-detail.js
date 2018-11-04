@@ -12,6 +12,9 @@ class WxGroupDetail extends Component {
   constructor() {
     super();
     this.state = {};
+    Taro.showShareMenu({
+      withShareTicket: true
+    })
   }
 
   componentWillMount() {
@@ -22,6 +25,14 @@ class WxGroupDetail extends Component {
 
   copyOwnerId() {
     Taro.setClipboardData({ data: this.state.owner });
+  }
+
+  onShareAppMessage() {
+    const { name, desc, image, owner } = this.state;
+    return {
+      title: '快来加入我的群吧',
+      path: `/pages/wx-group-view/index?pageTo=detail&name=${name}&desc=${desc}&image=${image}&owner=${owner}`
+    }
   }
 
   render () {

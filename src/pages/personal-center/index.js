@@ -18,8 +18,37 @@ class PersonalCenter extends Component {
     navigationBarTitleText: '个人中心',
   }
 
+  pages =  {
+    uploadQrcode:'/pages/personal-center/upload-qrcode',
+    detail:'/pages/wx-group-view/wx-group-detail',
+  };
+
+  combindParams(params) {
+    return Object.keys(params).reduce((pre, cur) => {
+      if(cur) {
+        return pre + `${cur}=${params[cur]}&`
+      }
+      return pre;
+    }, '?');
+  }
+  
   constructor() {
     this.state = {};
+    Taro.showShareMenu({
+      withShareTicket: true
+    })
+  }
+
+  componentWillMount() {
+    if(this.$router.params.pageTo) {
+      const params = { ...this.$router.params };
+      delete params.pageTo;
+      console.log(this.$router.params.pageTo)
+      Taro.navigateTo({
+        url: this.pages[this.$router.params.pageTo] + this.combindParams(params)
+      })
+      return;
+    }
   }
 
   changeUserInfo = ({ detail } = {}) => {

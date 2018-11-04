@@ -30,6 +30,9 @@ class UploadQrcode extends Component {
 
   constructor() {
     super(...arguments);
+    Taro.showShareMenu({
+      withShareTicket: true
+    })
     this.state = {
       groupName: { error: false },
       groupDescribe: { error: false },
@@ -143,6 +146,13 @@ class UploadQrcode extends Component {
     Taro.previewImage({ urls: [this.state.tempUrl]});
   }
   
+  onShareAppMessage() {
+    return {
+      title: '来分享你的群吧',
+      path: `/pages/personal-center/index?pageTo=uploadQrcode`
+    }
+  }
+
   render () {
     const { qrcodeTypes, loading, error } = this.props;
     const { tempUrl, qrcodeTypeIndex } = this.state;

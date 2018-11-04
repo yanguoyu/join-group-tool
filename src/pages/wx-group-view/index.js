@@ -1,6 +1,6 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { AtActivityIndicator, AtInput } from 'taro-ui'
+import { AtActivityIndicator, AtSearchBar, AtNoticebar } from 'taro-ui'
 import { connect } from '@tarojs/redux'
 import QrcodeList from '../components/qrcode-list';
 import DropDown from '../components/drop-down';
@@ -42,40 +42,85 @@ class WxGroupView extends Component {
     label: '创建时间',
     value: 'createAt',
   }];
+
+  pages =  {
+    uploadQrcode:'/pages/personal-center/upload-qrcode',
+    detail:'/pages/wx-group-view/wx-group-detail',
+  };
   
-  keyNames = ['qrcodeType', 'order'];
+  keyNames = ['type', 'order'];
 
   constructor() {
     super();
+    Taro.showShareMenu({
+      withShareTicket: true
+    });
     this.state = {
       order: 'createAt',
     }
   }
 
-  componentWillMount() {
-    this.props.getAllQrcode();
-    this.props.getQrcodeType();
+  combindParams(params) {
+    return Object.keys(params).reduce((pre, cur) => {
+      if(cur) {
+        return pre + `${cur}=${params[cur]}&`
+      }
+      return pre;
+    }, '?');
   }
 
-  search = (page) => {
+  componentWillMount() {
+    if(this.$router.params.pageTo) {
+      const params = { ...this.$router.params };
+      delete params.pageTo;
+      console.log(this.$router.params.pageTo)
+      Taro.navigateTo({
+        url: this.pages[this.$router.params.pageTo] + this.combindParams(params)
+      })
+      return;
+    }
     this.props.getAllQrcode({
-      name: this.state.key,
-      type: this.state.qrcodeType,
       order: this.state.order,
-      page,
+      user: this.$router.params.user
     });
+    this.setState({
+      user: this.$router.params.user
+    })
+    this.props.getQrcodeType();
   }
 
   changeKey = (key) => {
     this.setState({ key });
   }
 
+  search = () => {
+    this.props.getAllQrcode({
+      name: this.state.key,
+      type: this.state.type,
+      order: this.state.order,
+      user: undefined,
+    });
+  }
+
   changeValue = (value, index) => {
     this.setState({ [this.keyNames[index]]: value });
+    this.props.getAllQrcode({
+      name: this.state.key,
+      type: this.state.type,
+      order: this.state.order,
+      [this.keyNames[index]]: value,
+      user: undefined,
+    });
   }
 
   onPageChange = (currentPage) => {
-    this.search(currentPage-1);
+    this.props.getAllQrcode({
+      name: this.state.key,
+      type: this.state.type,
+      order: this.state.order,
+      user: this.state.user,
+      page: currentPage-1
+    });
   }
 
   render () {
@@ -88,21 +133,20 @@ class WxGroupView extends Component {
       this.state[this.keyNames[0]],
       this.state[this.keyNames[1]],
     ];
-    const { qrcodeCount, loading, error } = this.props;
+    const { qrcodeCount, loading, error, pageNo, pageSize } = this.props;
     return (
       <View className='index'>
+        {
+          this.state.user &&
+          <AtNoticebar>这是分享者的群，如果需要全部群，请重新搜索</AtNoticebar>
+        }
         <View className='search'>
-          <AtInput
-            name='value'
-            type='text'
-            placeholder='请输入关键字'
-            maxlength={10}
-            confirmType='搜索'
+          <AtSearchBar
+            className='qrcode-view-search-bar'
             value={key}
             onChange={this.changeKey}
-          >
-            <View onClick={this.search}>搜索</View>
-          </AtInput>
+            onConfirm={this.search}
+          />
           <DropDown
             options={options}
             values={values}
@@ -119,6 +163,8 @@ class WxGroupView extends Component {
               qrcodeList={this.state.qrcodeList}
               total={qrcodeCount}
               onPageChange={this.onPageChange}
+              pageSize={pageSize}
+              current={pageNo}
             />
           )
         }

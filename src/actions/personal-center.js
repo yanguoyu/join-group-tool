@@ -8,6 +8,7 @@ import {
   GET_USE_QRCODES,
   RESET_CUR_QRCODE_INFO,
   GET_CUR_QRCODE_INFO,
+  GET_USER_OPEN_ID,
 } from '../constants/personal-center'
 
 export const getUserInfo = (userInfo) => {
@@ -96,5 +97,12 @@ export const getCurQrcodeInfo = (_id) => ({
     data: {
       _id,
     },
+  })
+})
+
+export const getUserOpenId = () => ({
+  type: GET_USER_OPEN_ID,
+  payload: wx.cloud.callFunction({
+    name: 'get-userInfo'
   })
 })

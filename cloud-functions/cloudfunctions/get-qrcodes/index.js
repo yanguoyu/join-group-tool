@@ -12,17 +12,19 @@ exports.main = async (event) => {
     order,
     pageNo = 0,
     pageSize = 10,
+    user,
   } = event;
   const db = cloud.database();
   const collection = db.collection('qrcodes');
-  const result = await collection.where({
-    user: myself ? OPENID : undefined,
-    type,
-    name: db.RegExp({
-      regexp: `^.*${name||''}.*$`,
-      options: 'i',
-    }),
-  }).orderBy(order, 'desc')
+  const result = await collection.where(
+    {
+      user: myself ? OPENID : user,
+      type,
+      name: db.RegExp({
+        regexp: `^.*${name||''}.*$`,
+        options: 'i',
+      }),
+    }).orderBy(order, 'desc')
     .skip(pageNo * pageSize)
     .limit(pageSize)
     .get()
