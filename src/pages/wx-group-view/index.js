@@ -158,7 +158,7 @@ class WxGroupView extends Component {
           <AtActivityIndicator mode='center' content='加载中' /> : 
           (
             error ?
-            <Error/> :
+            <Error /> :
             <QrcodeList
               qrcodeList={this.state.qrcodeList}
               total={qrcodeCount}

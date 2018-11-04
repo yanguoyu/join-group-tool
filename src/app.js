@@ -28,6 +28,7 @@ class App extends Component {
   config = {
     pages: [
       'pages/wx-group-view/index',
+      'pages/help/index',
       'pages/personal-center/index',
       'pages/personal-center/upload-qrcode',
       'pages/personal-center/my-qrcode',
@@ -47,6 +48,11 @@ class App extends Component {
         text: "首页",
         iconPath: "./assert/home.png",
         selectedIconPath: "./assert/home-hover.png",
+      },{
+        pagePath: "pages/help/index",
+        text: "帮助 ",
+        iconPath: "./assert/help.png",
+        selectedIconPath: "./assert/help-hover.png",
       }, {
         pagePath: "pages/personal-center/index",
         text: "我",

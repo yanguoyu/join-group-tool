@@ -1,0 +1,1 @@
+export const GET_HELP_INFO = 'GET_HELP_INFO';
