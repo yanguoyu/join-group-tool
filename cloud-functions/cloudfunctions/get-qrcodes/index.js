@@ -24,7 +24,9 @@ exports.main = async (event) => {
         regexp: `^.*${name||''}.*$`,
         options: 'i',
       }),
+      show: true,
     }).orderBy(order, 'desc')
+    .orderBy('weight', 'desc')
     .skip(pageNo * pageSize)
     .limit(pageSize)
     .get()

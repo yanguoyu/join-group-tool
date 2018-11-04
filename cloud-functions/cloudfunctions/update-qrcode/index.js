@@ -25,6 +25,8 @@ exports.main = async (event) => {
         image,
         user: OPENID,
         updateAt: db.serverDate(),
+        show: true,
+        weight: 0,
       }
     });
   }
@@ -38,6 +40,8 @@ exports.main = async (event) => {
       user: OPENID,
       createAt: db.serverDate(),
       updateAt: db.serverDate(),
+      show: true,
+      weight: 0,
     }
   });
 };
