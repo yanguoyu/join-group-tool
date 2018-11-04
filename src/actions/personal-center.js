@@ -52,7 +52,7 @@ export const upLoadQrcode = ({_id, name, desc, owner, image, typeId}) => {
   }
 }
 
-export const deleteQrcode = (_id) => {
+export const deleteQrcode = (_id, success) => {
   return {
     type: DELETE_QRCODE,
     payload: wx.cloud.callFunction({
@@ -62,6 +62,7 @@ export const deleteQrcode = (_id) => {
       }
     }),
     handlers: {
+      success,
       failed: () => {
         Taro.showToast({
           title: '删除失败',
@@ -74,13 +75,16 @@ export const deleteQrcode = (_id) => {
   }
 }
 
-export const getUserQrcodes = () => {
+export const getUserQrcodes = ({ pageNo, pageSize }) => {
   return {
     type: GET_USE_QRCODES,
     payload: wx.cloud.callFunction({
       name: 'get-qrcodes',
       data: {
         myself: true,
+        pageNo,
+        pageSize,
+        order: 'updateAt'
       }
     }),
   }

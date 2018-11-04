@@ -40,8 +40,6 @@ exports.main = async (event) => {
       user: OPENID,
       createAt: db.serverDate(),
       updateAt: db.serverDate(),
-      show: true,
-      weight: 0,
     }
   });
 };

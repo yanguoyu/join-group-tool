@@ -35,21 +35,16 @@ export default {
       const index = state.userQrcodes.findIndex(item => item._id === meta._id);
       return state.updateInState(['userQrcodes',index], meta);
     },
-    [DELETE_QRCODE]: (state, { _id }) => {
+    [DELETE_QRCODE]: (state) => {
       Taro.showToast({
         title: '删除成功',
         image: '/assert/success.png',
         duration: 1000
       })
-      const index = state.userQrcodes.findIndex(item => item._id === _id);
-      return state.updateState('userQrcodes', userQrcodes => {
-        const res = [...userQrcodes];
-        res.splice(index, 1);
-        return res;
-      });
+      return state;
     },
     [GET_USE_QRCODES]: (state, { payload }) =>
-      state.updateState('userQrcodes', payload.pageInfo),
+      state.updateState('userQrcodes', payload),
     [RESET_CUR_QRCODE_INFO]: (state) =>
       state.updateState('curQrcodeInfo', {
         groupName: { value: '', error: false },

@@ -30,7 +30,16 @@ exports.main = async (event) => {
     .skip(pageNo * pageSize)
     .limit(pageSize)
     .get()
-  const count = await collection.count();
+  const count = await collection.where(
+    {
+      user: myself ? OPENID : user,
+      type,
+      name: db.RegExp({
+        regexp: `^.*${name||''}.*$`,
+        options: 'i',
+      }),
+      show: true,
+    }).count();
   const pageInfo = result.data;
   return {
     pageNo,

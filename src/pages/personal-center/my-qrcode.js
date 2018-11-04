@@ -10,14 +10,14 @@ import Error from '../components/error';
   loading: globalData.loading,
   error: globalData.error,
   userInfo: personalCenter.userInfo,
-  userQrcodes: personalCenter.userQrcodes,
   userOpenId: personalCenter.userOpenId,
+  ...personalCenter.userQrcodes,
 }), (dispatch) => ({
-  deleteQrcode(_id) {
-    dispatch(deleteQrcode(_id))
+  deleteQrcode(_id, success) {
+    dispatch(deleteQrcode(_id, success))
   },
-  getUserQrcodes() {
-    dispatch(getUserQrcodes())
+  getUserQrcodes(queryParams) {
+    dispatch(getUserQrcodes(queryParams))
   },
   getUserOpenId() {
     dispatch(getUserOpenId())
@@ -29,31 +29,40 @@ class MyQrcode extends Component {
     navigationBarTitleText: '我上传的',
   }
 
+  static defaultProps = {
+    pageSize: 4,
+    pageNo: 0,
+  }
+
   constructor() {
     super();
     Taro.showShareMenu({
       withShareTicket: true
     })
-    this.state = {
-      current: 1,
-      pageSize: 4,
-    }
   }
 
   componentWillMount() {
-    this.setState({ current: 1});
-    this.props.getUserQrcodes();
+    this.props.getUserQrcodes({
+      pageSize: this.props.pageSize,
+      pageNo: this.props.pageNo,
+    });
     this.props.getUserOpenId();
   }
 
   onPageChange = (current) => {
-    this.setState({
-      current,
+    this.props.getUserQrcodes({
+      pageSize: this.props.pageSize,
+      pageNo: current - 1,
     });
   }
 
   delete = (_id) => {
-    this.props.deleteQrcode(_id);
+    this.props.deleteQrcode(_id, () => {
+      this.props.getUserQrcodes({
+        pageSize: this.props.pageSize,
+        pageNo: this.props.pageNo,
+      });
+    });
   }
 
   onShareAppMessage() {
@@ -64,24 +73,22 @@ class MyQrcode extends Component {
   }
 
   render () {
-    const { current, pageSize } = this.state;
-    const { userQrcodes, loading, error } = this.props;
-    const total = userQrcodes.length;
-    const curDisplayList = userQrcodes.slice((current-1)*pageSize, current*pageSize);
+    const { count, pageSize, pageNo, pageInfo, loading, error } = this.props;
     return (
       <View className='qrcode-list'>
         {
           loading ?
           <AtActivityIndicator mode='center' content='加载中' /> : 
           error ?
-          <Error/> :
+          <Error /> :
           <QrcodeList
             isOwner
-            qrcodeList={curDisplayList}
-            total={total}
+            qrcodeList={pageInfo}
+            total={count}
             onPageChange={this.onPageChange}
             pageSize={pageSize}
             onDelete={this.delete}
+            current={pageNo+1}
           />
         }
       </View>

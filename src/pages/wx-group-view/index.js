@@ -119,7 +119,7 @@ class WxGroupView extends Component {
       type: this.state.type,
       order: this.state.order,
       user: this.state.user,
-      page: currentPage-1
+      pageNo: currentPage-1
     });
   }
 
@@ -164,7 +164,7 @@ class WxGroupView extends Component {
               total={qrcodeCount}
               onPageChange={this.onPageChange}
               pageSize={pageSize}
-              current={pageNo}
+              current={pageNo+1}
             />
           )
         }
