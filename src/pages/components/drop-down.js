@@ -1,6 +1,7 @@
 import Taro, { Component } from '@tarojs/taro'
 import { View } from '@tarojs/components'
-import { AtIcon, AtRadio } from 'taro-ui';
+import { AtIcon } from 'taro-ui';
+import MyPicker from './my-picker';
 import './drop-down.less';
 
 class DropDown extends Component {
@@ -14,57 +15,53 @@ class DropDown extends Component {
   constructor() {
     super();
     this.state = {
-      iconOpen: false,
-      curChoose: 0,
+      curChoose: undefined,
     }
   }
 
-  handleChange(value) {
-    this.props.onChange(value, this.state.curChoose);
-    this.setState({ iconOpen: false })
+  handleChange(chooseIndex, value) {
+    this.props.onChange(value, chooseIndex);
+    this.setState({ curChoose: undefined })
   }
 
-  clickIndexOption(index){
-    if(this.state.iconOpen && index === this.state.curChoose) {
-      this.setState({ iconOpen: false, curChoose: index })
-    } else {
-      this.setState({ iconOpen: true, curChoose: index })
-    }
+  openPicker(index) {
+    this.setState({ curChoose: index })
   }
 
   render () {
     const { options, placeholders, values } = this.props;
-    const { iconOpen, curChoose } = this.state;
-    const curOption = options[curChoose];
-    const newCurOption = [{label: '不限', value: 'ALL'}, ...curOption];
+    const { curChoose } = this.state;
     return (
       <View className='drop-down'>
         <View className='drop-down-options'>
           {
             options.map((option, index) => {
-              const newOption = [{label: '不限', value: 'ALL'}, ...(option||[])];
-              const chooseItem = newOption.find(item => item.value === values[index]);
+              const newCurOption = [{label: '不限', value: 'ALL'}, ...(option || [])];
+              const hasChoose = index === curChoose;
               return (
-                <View className='drop-down-icon' key={index} onClick={this.clickIndexOption.bind(this, index)}>
-                  {
-                    chooseItem ? chooseItem.label : (placeholders[index] || "不限")
-                  }
-                  <AtIcon
-                    value={(iconOpen && index ===curChoose) ? 'chevron-up' : 'chevron-down'} size='20'
-                    color={(iconOpen && index ===curChoose) ? '#1890ff' : '#8c8c8c'}
-                  >
-                  </AtIcon>
-                </View>
+                <MyPicker
+                  mode='selector'
+                  rangeKey='label'
+                  keyName='value'
+                  range={newCurOption}
+                  onChange={this.handleChange.bind(this, index)}
+                  value={values[index]}
+                  key={index}
+                >
+                  <View className='drop-down-icon' key={index} onClick={this.openPicker.bind(this, index)} >
+                    {
+                      values[index] ? values[index].label : (placeholders[index] || "不限")
+                    }
+                    {
+                      hasChoose ?
+                      <AtIcon value='chevron-up' size='20' color='#1890ff' />:
+                      <AtIcon value='chevron-down' size='20' color='#8c8c8c' />
+                    }
+                  </View>
+                 </MyPicker>
               )
             })
           }
-        </View>
-        <View className={iconOpen? 'drow-down-option-comm' : 'drow-down-option-close'}>
-          <AtRadio
-            options={newCurOption}
-            value={values[curChoose]}
-            onClick={this.handleChange}
-          />
         </View>
       </View>
     )

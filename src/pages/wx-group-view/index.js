@@ -56,7 +56,10 @@ class WxGroupView extends Component {
       withShareTicket: true
     });
     this.state = {
-      order: 'createAt',
+      order: {
+        label: '创建时间',
+        value: 'createAt',
+      },
     }
   }
 
@@ -73,7 +76,6 @@ class WxGroupView extends Component {
     if(this.$router.params.pageTo) {
       const params = { ...this.$router.params };
       delete params.pageTo;
-      console.log(this.$router.params.pageTo)
       Taro.navigateTo({
         url: this.pages[this.$router.params.pageTo] + this.combindParams(params)
       })

@@ -163,7 +163,7 @@ class UploadQrcode extends Component {
           loading ?
           <AtActivityIndicator mode='center' content='加载中' /> : 
           error ?
-          <Error/> :
+          <Error /> :
           <View className='upload-qrcode'>
             <AtForm>
               <AtInput
