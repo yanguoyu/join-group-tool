@@ -16,7 +16,7 @@ class MyPicker extends Component {
   }
 
   render () {
-    const { range, value, keyName, mode, rangeKey } = this.props;
+    const { range, value, keyName, mode, rangeKey, onCancel } = this.props;
     const chooseIndex = range.findIndex(item => item[keyName] === value[keyName]);
     return (
       <Picker
@@ -25,6 +25,7 @@ class MyPicker extends Component {
         range={range}
         onChange={this.handleChange}
         value={chooseIndex === -1 ? 0 : chooseIndex}
+        onCancel={onCancel}
       >
         {this.props.children}
       </Picker>

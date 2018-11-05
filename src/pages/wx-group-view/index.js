@@ -93,6 +93,14 @@ class WxGroupView extends Component {
 
   changeKey = (key) => {
     this.setState({ key });
+    if(!this.state.focus) {
+      this.props.getAllQrcode({
+        name: key,
+        type: this.state.type,
+        order: this.state.order,
+        user: undefined,
+      });
+    }
   }
 
   search = () => {
@@ -125,6 +133,14 @@ class WxGroupView extends Component {
     });
   }
 
+  onFocus = () => {
+    this.setState({ focus: true});
+  }
+
+  onBlur = () => {
+    this.setState({ focus: false});
+  }
+
   render () {
     const { key } = this.state;
     const options = [
@@ -148,6 +164,8 @@ class WxGroupView extends Component {
             value={key}
             onChange={this.changeKey}
             onConfirm={this.search}
+            onFocus={this.onFocus}
+            onBlur={this.onBlur}
           />
           <DropDown
             options={options}

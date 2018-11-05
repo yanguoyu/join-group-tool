@@ -39,8 +39,8 @@ class Help extends Component {
             <Error /> :
             helpInfo.map(help => (
               <View key={help._id}>
-                <View className='at-article__h1'>{help.desc}</View>
-                <View className='at-article__p'>{help.title}</View>
+                <View className='at-article__h1'>{help.title}</View>
+                <View className='at-article__p'>{help.desc}</View>
                 <Image  className='at-article__img help-index-image' src={help.image} />
               </View>
             ))

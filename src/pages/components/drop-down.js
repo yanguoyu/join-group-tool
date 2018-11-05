@@ -28,6 +28,10 @@ class DropDown extends Component {
     this.setState({ curChoose: index })
   }
 
+  onCancel() {
+    this.setState({ curChoose: undefined })
+  }
+
   render () {
     const { options, placeholders, values } = this.props;
     const { curChoose } = this.state;
@@ -47,6 +51,7 @@ class DropDown extends Component {
                   onChange={this.handleChange.bind(this, index)}
                   value={values[index]}
                   key={index}
+                  onCancel={this.onCancel}
                 >
                   <View className='drop-down-icon' key={index} onClick={this.openPicker.bind(this, index)} >
                     {
