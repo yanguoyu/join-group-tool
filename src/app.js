@@ -20,6 +20,7 @@ if (process.env.TARO_ENV === "weapp") {
 }
 
 wx.cloud.init({
+  env: 'dev-66ff72',
   traceUser: true,
 })
 

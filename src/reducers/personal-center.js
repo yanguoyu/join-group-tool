@@ -27,13 +27,10 @@ export default {
       });
       setTimeout(() => Taro.navigateBack(), 1000);
       if(payload._id){
-        return state.updateState('userQrcodes', userQrcodes => [...userQrcodes, {
-          _id: payload._id,
-          ...meta,
-        }]);
+        return state;
       }
-      const index = state.userQrcodes.findIndex(item => item._id === meta._id);
-      return state.updateInState(['userQrcodes',index], meta);
+      const index = state.userQrcodes.pageInfo.findIndex(item => item._id === meta._id);
+      return state.updateInState(['userQrcodes','pageInfo', index], meta);
     },
     [DELETE_QRCODE]: (state) => {
       Taro.showToast({
@@ -70,7 +67,9 @@ export default {
   initState: {
     qrcodeTypes: [],
     formValues: {},
-    userQrcodes: [],
+    userQrcodes: {
+      pageInfo: [],
+    },
     curQrcodeInfo: {
       groupName: { error: false },
       groupDescribe: { error: false },

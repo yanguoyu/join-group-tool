@@ -1,6 +1,8 @@
 const cloud = require('wx-server-sdk');
 
-cloud.init();
+cloud.init({
+  env: 'dev-66ff72'
+});
 
 exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext();
@@ -25,8 +27,6 @@ exports.main = async (event) => {
         image,
         user: OPENID,
         updateAt: db.serverDate(),
-        show: true,
-        weight: 0,
       }
     });
   }
@@ -40,6 +40,8 @@ exports.main = async (event) => {
       user: OPENID,
       createAt: db.serverDate(),
       updateAt: db.serverDate(),
+      show: true,
+      weight: 0,
     }
   });
 };

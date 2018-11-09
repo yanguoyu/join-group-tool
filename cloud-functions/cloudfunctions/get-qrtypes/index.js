@@ -1,6 +1,8 @@
 const cloud = require('wx-server-sdk');
 
-cloud.init();
+cloud.init({
+  env: 'dev-66ff72'
+});
 
 exports.main = async () => {
   const db = cloud.database().collection('qrcode-types');
