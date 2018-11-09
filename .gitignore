@@ -2,3 +2,4 @@ dist/
 .temp/
 .rn_temp/
 node_modules/
+/cloud-function/cloudfunctions/import-qrcode/db/
