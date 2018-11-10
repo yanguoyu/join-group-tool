@@ -16,9 +16,15 @@ exports.main = async (event) => {
       error: '',
     };
   }
-  const qrcode = await collection.doc(_id).get();
-  const res = await collection.doc(_id).remove();
-  console.log(qrcode.data.image);
-  await cloud.deleteFile({ fileList: [qrcode.data.image] });
+  let res;
+  try {
+    const qrcode = await collection.doc(_id).get();
+    console.log(qrcode);
+    res = await collection.doc(_id).remove();
+    console.log(qrcode.data.image);
+    await cloud.deleteFile({ fileList: [qrcode.data.image] });
+  } catch (error) {
+    console.log(error);
+  }
   return res;
 };
